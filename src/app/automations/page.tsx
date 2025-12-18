@@ -7,12 +7,15 @@ import { useStore } from '@/store/useStore';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AutomationCard } from '@/components/automations/AutomationCard';
 import { CreateAutomationModal } from '@/components/automations/CreateAutomationModal';
+import { EditAutomationModal } from '@/components/automations/EditAutomationModal';
+import type { Automation } from '@/types';
 import clsx from 'clsx';
 
 export default function AutomationsPage() {
   const router = useRouter();
   const { isAuthenticated, automations, getProviderById, getBrokerById, theme } = useStore();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingAutomation, setEditingAutomation] = useState<Automation | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -73,6 +76,7 @@ export default function AutomationsPage() {
                 automation={automation}
                 provider={provider}
                 broker={broker}
+                onEdit={(auto) => setEditingAutomation(auto)}
               />
             );
           })
@@ -83,6 +87,13 @@ export default function AutomationsPage() {
       <CreateAutomationModal 
         isOpen={showCreateModal} 
         onClose={() => setShowCreateModal(false)} 
+      />
+
+      {/* Edit Automation Modal */}
+      <EditAutomationModal
+        isOpen={editingAutomation !== null}
+        onClose={() => setEditingAutomation(null)}
+        automation={editingAutomation}
       />
     </AppLayout>
   );

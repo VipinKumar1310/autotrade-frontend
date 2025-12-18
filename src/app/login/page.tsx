@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useStore } from '@/store/useStore';
-import { LoginScreen } from '@/components/screens/LoginScreen';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useStore } from "@/store/useStore";
+import { LoginScreen } from "@/components/screens/LoginScreen";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,7 +11,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace('/dashboard');
+      router.replace("/dashboard");
     }
   }, [isAuthenticated, router]);
 
@@ -21,4 +21,3 @@ export default function LoginPage() {
 
   return <LoginScreen />;
 }
-

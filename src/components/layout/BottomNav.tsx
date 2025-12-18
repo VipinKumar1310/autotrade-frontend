@@ -24,10 +24,10 @@ export function BottomNav() {
 
   return (
     <nav className={clsx(
-      'fixed bottom-0 left-0 right-0 z-50 border-t backdrop-blur-sm safe-bottom',
+      'fixed bottom-0 left-0 right-0 z-50 safe-bottom lg:hidden',
       theme === 'dark' 
-        ? 'border-dark-border bg-dark-bg/95' 
-        : 'border-light-border bg-light-bg/95'
+        ? 'glass-dark border-t border-white/5' 
+        : 'glass-light border-t border-black/5'
     )}>
       <div className="flex h-16 items-center justify-around px-2">
         {navItems.map((item) => {
@@ -39,26 +39,31 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={clsx(
-                'relative flex flex-col items-center justify-center gap-1 px-3 py-2 transition-colors touch-feedback',
+                'relative flex flex-col items-center justify-center gap-1 px-4 py-2 transition-all touch-feedback',
                 isActive
-                  ? theme === 'dark' ? 'text-white' : 'text-light-text'
-                  : theme === 'dark' ? 'text-dark-muted hover:text-white' : 'text-light-muted hover:text-light-text'
+                  ? theme === 'dark' ? 'text-white' : 'text-gray-900'
+                  : theme === 'dark' ? 'text-dark-muted hover:text-white' : 'text-gray-400 hover:text-gray-900'
               )}
             >
-              <Icon 
-                size={22} 
-                strokeWidth={isActive ? 2.5 : 2}
-              />
+              <div className={clsx(
+                'relative transition-transform',
+                isActive && 'scale-110'
+              )}>
+                <Icon 
+                  size={22} 
+                  strokeWidth={isActive ? 2.5 : 1.5}
+                />
+              </div>
               <span className={clsx(
-                'text-[10px] font-medium',
-                isActive ? 'opacity-100' : 'opacity-70'
+                'text-[10px] transition-all',
+                isActive ? 'font-semibold opacity-100' : 'font-medium opacity-60'
               )}>
                 {item.label}
               </span>
               {isActive && (
                 <div className={clsx(
-                  'absolute -top-px left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full',
-                  theme === 'dark' ? 'bg-white' : 'bg-light-text'
+                  'absolute -top-px left-1/2 h-[2px] w-10 -translate-x-1/2',
+                  theme === 'dark' ? 'bg-white' : 'bg-gray-900'
                 )} />
               )}
             </Link>

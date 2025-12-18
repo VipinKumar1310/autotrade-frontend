@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import {
   Play,
   Pause,
@@ -17,7 +16,6 @@ import type {
   TelegramProvider,
   Broker,
   ExecutionMode,
-  AutomationStatus,
 } from "@/types";
 import clsx from "clsx";
 
@@ -98,6 +96,7 @@ interface AutomationCardProps {
   automation: Automation;
   provider?: TelegramProvider;
   broker?: Broker;
+  onEdit?: (automation: Automation) => void;
 }
 
 const executionModeConfig: Record<
@@ -109,37 +108,15 @@ const executionModeConfig: Record<
   manual: { label: "Manual", icon: Zap },
 };
 
-const statusConfig: Record<
-  AutomationStatus,
-  { label: string; className: string }
-> = {
-  running: {
-    label: "Running",
-    className: "bg-profit/20 text-profit status-running",
-  },
-  paused: { label: "Paused", className: "bg-dark-muted/20 text-dark-muted" },
-  error: { label: "Error", className: "bg-loss/20 text-loss status-error" },
-};
-
 export function AutomationCard({
   automation,
   provider,
   broker,
+  onEdit,
 }: AutomationCardProps) {
-  const router = useRouter();
   const { updateAutomationStatus, deleteAutomation, theme } = useStore();
 
   const mode = executionModeConfig[automation.execution_mode];
-  const status =
-    automation.status === "paused"
-      ? {
-          label: "Paused",
-          className:
-            theme === "dark"
-              ? "bg-dark-muted/20 text-dark-muted"
-              : "bg-light-muted/20 text-light-muted",
-        }
-      : statusConfig[automation.status];
   const ModeIcon = mode.icon;
 
   const handleToggleStatus = (e: React.MouseEvent) => {
@@ -155,28 +132,30 @@ export function AutomationCard({
     }
   };
 
+  const isRunning = automation.status === "running";
+  const isError = automation.status === "error";
+
   return (
     <div
-      onClick={() => router.push(`/automations/${automation.id}`)}
+      onClick={() => onEdit?.(automation)}
       className={clsx(
-        "p-3 card-interactive cursor-pointer border",
-        theme === "dark"
-          ? "bg-dark-bg border-dark-border"
-          : "bg-light-bg border-light-border"
+        "p-3 card-interactive cursor-pointer",
+        theme === "dark" ? "premium-card" : "bg-white border border-gray-100 shadow-sm",
+        isRunning && "card-open-position"
       )}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-2">
+      <div className="flex items-start justify-between gap-3 mb-2.5">
         <div className="flex-1 min-w-0">
           <h3
             className={clsx(
-              "text-base font-semibold truncate",
-              theme === "dark" ? "text-white" : "text-light-text"
+              "text-sm font-semibold truncate tracking-tight",
+              theme === "dark" ? "text-white" : "text-gray-900"
             )}
           >
             {automation.name}
           </h3>
-          <div className="flex items-center gap-1.5 mt-0.5">
+          <div className="flex items-center gap-1.5 mt-1">
             <TelegramIcon
               size={14}
               className="flex-shrink-0"
@@ -184,48 +163,58 @@ export function AutomationCard({
             />
             <p
               className={clsx(
-                "text-sm truncate",
-                theme === "dark" ? "text-dark-muted" : "text-light-muted"
+                "text-[11px] truncate",
+                theme === "dark" ? "text-dark-muted" : "text-gray-500"
               )}
             >
               {provider?.name || "Unknown Provider"}
             </p>
           </div>
         </div>
-        <span
-          className={clsx("px-2 py-0.5 text-xs font-medium", status.className)}
-        >
-          {status.label}
-        </span>
+        
+        {/* Status Badge */}
+        <div className={clsx(
+          "flex items-center gap-1.5 px-2 py-1",
+          isRunning && "status-badge-running",
+          isError && "status-badge-error",
+          !isRunning && !isError && "status-badge-paused"
+        )}>
+          {isRunning && (
+            <span className="status-dot status-dot-live" />
+          )}
+          <span className="text-[10px] font-semibold uppercase tracking-wide">
+            {automation.status}
+          </span>
+        </div>
       </div>
 
       {/* Error message */}
       {automation.error_message && (
-        <div className="flex items-start gap-2 mb-2 p-2 bg-loss/10 border border-loss/20">
-          <AlertCircle size={14} className="text-loss flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-loss">{automation.error_message}</p>
+        <div className="flex items-start gap-2 mb-2.5 p-2 bg-loss/10 border border-loss/20">
+          <AlertCircle size={12} className="text-loss flex-shrink-0 mt-0.5" />
+          <p className="text-[10px] text-loss leading-tight">{automation.error_message}</p>
         </div>
       )}
 
       {/* Info Row */}
       <div
         className={clsx(
-          "flex items-center gap-3 text-sm mb-2",
-          theme === "dark" ? "text-dark-muted" : "text-light-muted"
+          "flex items-center gap-3 text-[11px] mb-2.5",
+          theme === "dark" ? "text-dark-muted" : "text-gray-500"
         )}
       >
         <div className="flex items-center gap-1.5">
-          <ModeIcon size={13} />
+          <ModeIcon size={12} />
           <span>{mode.label}</span>
         </div>
         <div
           className={clsx(
             "h-3 w-px",
-            theme === "dark" ? "bg-dark-border" : "bg-light-border"
+            theme === "dark" ? "bg-white/10" : "bg-gray-200"
           )}
         />
         <div className="flex items-center gap-1.5">
-          <KiteIcon size={13} className="flex-shrink-0" />
+          <KiteIcon size={12} className="flex-shrink-0" />
           <span>{broker?.name || "No Broker"}</span>
         </div>
       </div>
@@ -233,63 +222,63 @@ export function AutomationCard({
       {/* Stats Row */}
       <div
         className={clsx(
-          "grid grid-cols-3 gap-2 py-2 border-t",
-          theme === "dark" ? "border-dark-border" : "border-light-border"
+          "grid grid-cols-3 gap-3 py-2.5 border-t",
+          theme === "dark" ? "border-white/5" : "border-gray-100"
         )}
       >
         <div>
           <p
             className={clsx(
-              "text-xs",
-              theme === "dark" ? "text-dark-muted" : "text-light-muted"
+              "text-[9px] uppercase tracking-wide mb-0.5",
+              theme === "dark" ? "text-dark-muted" : "text-gray-400"
             )}
           >
             Today
           </p>
           <p
             className={clsx(
-              "text-sm font-medium tabular-nums",
-              theme === "dark" ? "text-white" : "text-light-text"
+              "text-sm font-semibold font-mono tabular-nums",
+              theme === "dark" ? "text-white" : "text-gray-900"
             )}
           >
-            {automation.trades_today} trades
+            {automation.trades_today}
           </p>
         </div>
         <div>
           <p
             className={clsx(
-              "text-xs",
-              theme === "dark" ? "text-dark-muted" : "text-light-muted"
+              "text-[9px] uppercase tracking-wide mb-0.5",
+              theme === "dark" ? "text-dark-muted" : "text-gray-400"
             )}
           >
             Win Rate
           </p>
           <p
             className={clsx(
-              "text-sm font-medium tabular-nums",
-              theme === "dark" ? "text-white" : "text-light-text"
+              "text-sm font-semibold font-mono tabular-nums",
+              theme === "dark" ? "text-white" : "text-gray-900"
             )}
           >
-            {automation.stats.win_rate.toFixed(1)}%
+            {automation.stats.win_rate.toFixed(0)}%
           </p>
         </div>
         <div>
           <p
             className={clsx(
-              "text-xs",
-              theme === "dark" ? "text-dark-muted" : "text-light-muted"
+              "text-[9px] uppercase tracking-wide mb-0.5",
+              theme === "dark" ? "text-dark-muted" : "text-gray-400"
             )}
           >
-            Total P&L
+            P&L
           </p>
           <p
             className={clsx(
-              "text-sm font-medium tabular-nums",
-              automation.stats.total_pnl >= 0 ? "text-profit" : "text-loss"
+              "text-sm font-bold font-mono tabular-nums",
+              automation.stats.total_pnl >= 0 ? "number-profit" : "number-loss"
             )}
           >
             {automation.stats.total_pnl >= 0 ? "+" : ""}₹
-            {automation.stats.total_pnl.toLocaleString()}
+            {Math.abs(automation.stats.total_pnl).toLocaleString('en-IN')}
           </p>
         </div>
       </div>
@@ -297,34 +286,34 @@ export function AutomationCard({
       {/* Actions */}
       <div
         className={clsx(
-          "flex items-center gap-2 pt-2 border-t",
-          theme === "dark" ? "border-dark-border" : "border-light-border"
+          "flex items-center gap-2 pt-2.5 border-t",
+          theme === "dark" ? "border-white/5" : "border-gray-100"
         )}
       >
         <button
           onClick={handleToggleStatus}
-          disabled={automation.status === "error"}
+          disabled={isError}
           className={clsx(
-            "flex-1 flex items-center justify-center gap-2 py-1.5 text-sm font-medium transition-colors",
-            automation.status === "running"
+            "flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold transition-all",
+            isRunning
               ? theme === "dark"
-                ? "bg-dark-border text-white hover:bg-dark-muted/30"
-                : "bg-light-border text-light-text hover:bg-light-muted/30"
-              : automation.status === "error"
+                ? "bg-white/5 text-white hover:bg-white/10"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              : isError
               ? theme === "dark"
-                ? "bg-dark-border text-dark-muted cursor-not-allowed"
-                : "bg-light-border text-light-muted cursor-not-allowed"
-              : "bg-profit/20 text-profit hover:bg-profit/30"
+                ? "bg-white/5 text-dark-muted cursor-not-allowed"
+                : "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-profit/10 text-profit hover:bg-profit/20"
           )}
         >
-          {automation.status === "running" ? (
+          {isRunning ? (
             <>
-              <Pause size={14} />
+              <Pause size={13} />
               Pause
             </>
           ) : (
             <>
-              <Play size={14} />
+              <Play size={13} />
               Start
             </>
           )}
@@ -332,10 +321,10 @@ export function AutomationCard({
         <button
           onClick={handleDelete}
           className={clsx(
-            "flex h-8 w-8 items-center justify-center transition-colors hover:bg-loss/20 hover:text-loss",
+            "flex h-8 w-8 items-center justify-center transition-all hover:bg-loss/10 hover:text-loss",
             theme === "dark"
-              ? "bg-dark-border text-dark-muted"
-              : "bg-light-border text-light-muted"
+              ? "bg-white/5 text-dark-muted"
+              : "bg-gray-100 text-gray-400"
           )}
         >
           <Trash2 size={14} />
@@ -343,13 +332,13 @@ export function AutomationCard({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            router.push(`/automations/${automation.id}`);
+            onEdit?.(automation);
           }}
           className={clsx(
-            "flex h-8 w-8 items-center justify-center transition-colors",
+            "flex h-8 w-8 items-center justify-center transition-all",
             theme === "dark"
-              ? "bg-dark-border text-dark-muted hover:bg-dark-muted/30 hover:text-white"
-              : "bg-light-border text-light-muted hover:bg-light-muted/30 hover:text-light-text"
+              ? "bg-white/5 text-dark-muted hover:bg-white/10 hover:text-white"
+              : "bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-900"
           )}
         >
           <ChevronRight size={16} />

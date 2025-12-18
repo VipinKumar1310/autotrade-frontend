@@ -48,6 +48,7 @@ interface AppState {
     updateAutomationStatus: (id: string, status: AutomationStatus) => void;
     deleteAutomation: (id: string) => void;
     createAutomation: (automation: Omit<Automation, 'id' | 'created_at' | 'stats'>) => void;
+    updateAutomation: (id: string, updates: Partial<Omit<Automation, 'id' | 'created_at' | 'stats'>>) => void;
 
     // Notification actions
     markNotificationRead: (id: string) => void;
@@ -122,6 +123,21 @@ export const useStore = create<AppState>()(
                 };
                 set((state) => ({
                     automations: [...state.automations, newAutomation],
+                }));
+            },
+
+            updateAutomation: (id, updates) => {
+                set((state) => ({
+                    automations: state.automations.map((auto) =>
+                        auto.id === id
+                            ? {
+                                  ...auto,
+                                  ...updates,
+                                  rules: updates.rules ? { ...auto.rules, ...updates.rules } : auto.rules,
+                                  options: updates.options ? { ...auto.options, ...updates.options } : auto.options,
+                              }
+                            : auto
+                    ),
                 }));
             },
 
