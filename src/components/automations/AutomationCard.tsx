@@ -127,10 +127,19 @@ export function AutomationCard({
   broker,
 }: AutomationCardProps) {
   const router = useRouter();
-  const { updateAutomationStatus, deleteAutomation } = useStore();
+  const { updateAutomationStatus, deleteAutomation, theme } = useStore();
 
   const mode = executionModeConfig[automation.execution_mode];
-  const status = statusConfig[automation.status];
+  const status =
+    automation.status === "paused"
+      ? {
+          label: "Paused",
+          className:
+            theme === "dark"
+              ? "bg-dark-muted/20 text-dark-muted"
+              : "bg-light-muted/20 text-light-muted",
+        }
+      : statusConfig[automation.status];
   const ModeIcon = mode.icon;
 
   const handleToggleStatus = (e: React.MouseEvent) => {
@@ -149,12 +158,22 @@ export function AutomationCard({
   return (
     <div
       onClick={() => router.push(`/automations/${automation.id}`)}
-      className="bg-dark-bg border border-dark-border p-3 card-interactive cursor-pointer"
+      className={clsx(
+        "p-3 card-interactive cursor-pointer border",
+        theme === "dark"
+          ? "bg-dark-bg border-dark-border"
+          : "bg-light-bg border-light-border"
+      )}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-semibold text-white truncate">
+          <h3
+            className={clsx(
+              "text-base font-semibold truncate",
+              theme === "dark" ? "text-white" : "text-light-text"
+            )}
+          >
             {automation.name}
           </h3>
           <div className="flex items-center gap-1.5 mt-0.5">
@@ -163,7 +182,12 @@ export function AutomationCard({
               className="flex-shrink-0"
               id={`tg-${automation.id}`}
             />
-            <p className="text-sm text-dark-muted truncate">
+            <p
+              className={clsx(
+                "text-sm truncate",
+                theme === "dark" ? "text-dark-muted" : "text-light-muted"
+              )}
+            >
               {provider?.name || "Unknown Provider"}
             </p>
           </div>
@@ -184,12 +208,22 @@ export function AutomationCard({
       )}
 
       {/* Info Row */}
-      <div className="flex items-center gap-3 text-sm text-dark-muted mb-2">
+      <div
+        className={clsx(
+          "flex items-center gap-3 text-sm mb-2",
+          theme === "dark" ? "text-dark-muted" : "text-light-muted"
+        )}
+      >
         <div className="flex items-center gap-1.5">
           <ModeIcon size={13} />
           <span>{mode.label}</span>
         </div>
-        <div className="h-3 w-px bg-dark-border" />
+        <div
+          className={clsx(
+            "h-3 w-px",
+            theme === "dark" ? "bg-dark-border" : "bg-light-border"
+          )}
+        />
         <div className="flex items-center gap-1.5">
           <KiteIcon size={13} className="flex-shrink-0" />
           <span>{broker?.name || "No Broker"}</span>
@@ -197,21 +231,57 @@ export function AutomationCard({
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-3 gap-2 py-2 border-t border-dark-border">
+      <div
+        className={clsx(
+          "grid grid-cols-3 gap-2 py-2 border-t",
+          theme === "dark" ? "border-dark-border" : "border-light-border"
+        )}
+      >
         <div>
-          <p className="text-xs text-dark-muted">Today</p>
-          <p className="text-sm font-medium text-white tabular-nums">
+          <p
+            className={clsx(
+              "text-xs",
+              theme === "dark" ? "text-dark-muted" : "text-light-muted"
+            )}
+          >
+            Today
+          </p>
+          <p
+            className={clsx(
+              "text-sm font-medium tabular-nums",
+              theme === "dark" ? "text-white" : "text-light-text"
+            )}
+          >
             {automation.trades_today} trades
           </p>
         </div>
         <div>
-          <p className="text-xs text-dark-muted">Win Rate</p>
-          <p className="text-sm font-medium text-white tabular-nums">
+          <p
+            className={clsx(
+              "text-xs",
+              theme === "dark" ? "text-dark-muted" : "text-light-muted"
+            )}
+          >
+            Win Rate
+          </p>
+          <p
+            className={clsx(
+              "text-sm font-medium tabular-nums",
+              theme === "dark" ? "text-white" : "text-light-text"
+            )}
+          >
             {automation.stats.win_rate.toFixed(1)}%
           </p>
         </div>
         <div>
-          <p className="text-xs text-dark-muted">Total P&L</p>
+          <p
+            className={clsx(
+              "text-xs",
+              theme === "dark" ? "text-dark-muted" : "text-light-muted"
+            )}
+          >
+            Total P&L
+          </p>
           <p
             className={clsx(
               "text-sm font-medium tabular-nums",
@@ -225,16 +295,25 @@ export function AutomationCard({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 pt-2 border-t border-dark-border">
+      <div
+        className={clsx(
+          "flex items-center gap-2 pt-2 border-t",
+          theme === "dark" ? "border-dark-border" : "border-light-border"
+        )}
+      >
         <button
           onClick={handleToggleStatus}
           disabled={automation.status === "error"}
           className={clsx(
             "flex-1 flex items-center justify-center gap-2 py-1.5 text-sm font-medium transition-colors",
             automation.status === "running"
-              ? "bg-dark-border text-white hover:bg-dark-muted/30"
+              ? theme === "dark"
+                ? "bg-dark-border text-white hover:bg-dark-muted/30"
+                : "bg-light-border text-light-text hover:bg-light-muted/30"
               : automation.status === "error"
-              ? "bg-dark-border text-dark-muted cursor-not-allowed"
+              ? theme === "dark"
+                ? "bg-dark-border text-dark-muted cursor-not-allowed"
+                : "bg-light-border text-light-muted cursor-not-allowed"
               : "bg-profit/20 text-profit hover:bg-profit/30"
           )}
         >
@@ -252,7 +331,12 @@ export function AutomationCard({
         </button>
         <button
           onClick={handleDelete}
-          className="flex h-8 w-8 items-center justify-center bg-dark-border text-dark-muted hover:bg-loss/20 hover:text-loss transition-colors"
+          className={clsx(
+            "flex h-8 w-8 items-center justify-center transition-colors hover:bg-loss/20 hover:text-loss",
+            theme === "dark"
+              ? "bg-dark-border text-dark-muted"
+              : "bg-light-border text-light-muted"
+          )}
         >
           <Trash2 size={14} />
         </button>
@@ -261,7 +345,12 @@ export function AutomationCard({
             e.stopPropagation();
             router.push(`/automations/${automation.id}`);
           }}
-          className="flex h-8 w-8 items-center justify-center bg-dark-border text-dark-muted hover:bg-dark-muted/30 hover:text-white transition-colors"
+          className={clsx(
+            "flex h-8 w-8 items-center justify-center transition-colors",
+            theme === "dark"
+              ? "bg-dark-border text-dark-muted hover:bg-dark-muted/30 hover:text-white"
+              : "bg-light-border text-light-muted hover:bg-light-muted/30 hover:text-light-text"
+          )}
         >
           <ChevronRight size={16} />
         </button>

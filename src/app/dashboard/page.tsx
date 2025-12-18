@@ -153,7 +153,8 @@ export default function DashboardPage() {
     parsedSignals, 
     trades, 
     automations, 
-    telegramProviders 
+    telegramProviders,
+    theme
   } = useStore();
 
   // Filter states
@@ -308,9 +309,9 @@ export default function DashboardPage() {
       case 'pending_manual':
         return { label: 'Manual', icon: Hourglass, className: 'text-warning bg-warning/10' };
       case 'pending':
-        return { label: 'Pending', icon: Clock, className: 'text-dark-muted bg-dark-border' };
+        return { label: 'Pending', icon: Clock, className: theme === 'dark' ? 'text-dark-muted bg-dark-border' : 'text-gray-500 bg-gray-100' };
       default:
-        return { label: status, icon: AlertCircle, className: 'text-dark-muted bg-dark-border' };
+        return { label: status, icon: AlertCircle, className: theme === 'dark' ? 'text-dark-muted bg-dark-border' : 'text-gray-500 bg-gray-100' };
     }
   };
 
@@ -319,15 +320,18 @@ export default function DashboardPage() {
   return (
     <AppLayout>
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-dark-bg border-b border-dark-border">
+      <header className={clsx(
+        "sticky top-0 z-40 border-b",
+        theme === 'dark' ? 'bg-dark-bg border-dark-border' : 'bg-light-bg border-light-border'
+      )}>
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold text-white">Dashboard</h1>
-              <p className="text-xs text-dark-muted mt-0.5">Your trading performance</p>
+              <h1 className={clsx("text-xl font-bold", theme === 'dark' ? 'text-white' : 'text-light-text')}>Dashboard</h1>
+              <p className={clsx("text-xs mt-0.5", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Your trading performance</p>
             </div>
             <div className="flex items-center gap-2">
-              <BarChart3 size={20} className="text-dark-muted" />
+              <BarChart3 size={20} className={theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'} />
             </div>
           </div>
         </div>
@@ -337,7 +341,7 @@ export default function DashboardPage() {
       <div className="px-4 py-3">
         <div className="grid grid-cols-2 gap-3">
           {/* Total P&L Card */}
-          <div className="bg-dark-bg border border-dark-border p-3">
+          <div className={clsx("p-3 border", theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200 shadow-sm')}>
             <div className="flex items-center gap-2 mb-1">
               <div className={clsx(
                 'w-6 h-6 flex items-center justify-center',
@@ -349,7 +353,7 @@ export default function DashboardPage() {
                   <TrendingDown size={14} className="text-loss" />
                 )}
               </div>
-              <span className="text-[10px] text-dark-muted uppercase tracking-wide">Total P&L</span>
+              <span className={clsx("text-[10px] uppercase tracking-wide", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Total P&L</span>
             </div>
             <p className={clsx(
               'text-xl font-bold tabular-nums',
@@ -360,30 +364,30 @@ export default function DashboardPage() {
           </div>
 
           {/* Win Rate Card */}
-          <div className="bg-dark-bg border border-dark-border p-3">
+          <div className={clsx("p-3 border", theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200 shadow-sm')}>
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-6 h-6 flex items-center justify-center bg-white/10">
-                <Target size={14} className="text-white" />
+              <div className={clsx("w-6 h-6 flex items-center justify-center", theme === 'dark' ? 'bg-white/10' : 'bg-gray-100')}>
+                <Target size={14} className={theme === 'dark' ? 'text-white' : 'text-gray-900'} />
               </div>
-              <span className="text-[10px] text-dark-muted uppercase tracking-wide">Win Rate</span>
+              <span className={clsx("text-[10px] uppercase tracking-wide", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Win Rate</span>
             </div>
-            <p className="text-xl font-bold text-white tabular-nums">
+            <p className={clsx("text-xl font-bold tabular-nums", theme === 'dark' ? 'text-white' : 'text-gray-900')}>
               {analytics.winRate.toFixed(1)}%
             </p>
-            <p className="text-[10px] text-dark-muted">
+            <p className={clsx("text-[10px]", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
               {analytics.winningTrades}W / {analytics.losingTrades}L
             </p>
           </div>
 
           {/* Total Trades Card */}
-          <div className="bg-dark-bg border border-dark-border p-3">
+          <div className={clsx("p-3 border", theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200 shadow-sm')}>
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-6 h-6 flex items-center justify-center bg-white/10">
-                <Zap size={14} className="text-white" />
+              <div className={clsx("w-6 h-6 flex items-center justify-center", theme === 'dark' ? 'bg-white/10' : 'bg-gray-100')}>
+                <Zap size={14} className={theme === 'dark' ? 'text-white' : 'text-gray-900'} />
               </div>
-              <span className="text-[10px] text-dark-muted uppercase tracking-wide">Trades</span>
+              <span className={clsx("text-[10px] uppercase tracking-wide", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Trades</span>
             </div>
-            <p className="text-xl font-bold text-white tabular-nums">
+            <p className={clsx("text-xl font-bold tabular-nums", theme === 'dark' ? 'text-white' : 'text-gray-900')}>
               {analytics.totalTrades}
             </p>
             {analytics.openTrades > 0 && (
@@ -394,17 +398,17 @@ export default function DashboardPage() {
           </div>
 
           {/* Signals Card */}
-          <div className="bg-dark-bg border border-dark-border p-3">
+          <div className={clsx("p-3 border", theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200 shadow-sm')}>
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-6 h-6 flex items-center justify-center bg-white/10">
-                <BarChart3 size={14} className="text-white" />
+              <div className={clsx("w-6 h-6 flex items-center justify-center", theme === 'dark' ? 'bg-white/10' : 'bg-gray-100')}>
+                <BarChart3 size={14} className={theme === 'dark' ? 'text-white' : 'text-gray-900'} />
               </div>
-              <span className="text-[10px] text-dark-muted uppercase tracking-wide">Signals</span>
+              <span className={clsx("text-[10px] uppercase tracking-wide", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Signals</span>
             </div>
-            <p className="text-xl font-bold text-white tabular-nums">
+            <p className={clsx("text-xl font-bold tabular-nums", theme === 'dark' ? 'text-white' : 'text-gray-900')}>
               {analytics.totalSignals}
             </p>
-            <p className="text-[10px] text-dark-muted">
+            <p className={clsx("text-[10px]", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
               {analytics.executedSignals} exec / {analytics.skippedSignals} skip
             </p>
           </div>
@@ -425,8 +429,10 @@ export default function DashboardPage() {
               className={clsx(
                 'px-3 py-1 text-[11px] font-medium transition-colors rounded-full border',
                 timePeriod === period
-                  ? 'bg-white text-dark-bg border-white'
-                  : 'bg-dark-bg text-dark-muted border-dark-border hover:text-white hover:border-dark-muted'
+                  ? theme === 'dark' ? 'bg-white text-gray-900 border-white' : 'bg-gray-900 text-white border-gray-900'
+                  : theme === 'dark' 
+                    ? 'bg-dark-card text-dark-muted border-dark-border hover:text-white hover:border-dark-muted'
+                    : 'bg-white text-gray-500 border-gray-200 hover:text-gray-900 hover:border-gray-400'
               )}
             >
               {period === 'today' ? 'Today' :
@@ -443,8 +449,10 @@ export default function DashboardPage() {
             className={clsx(
               'w-7 h-7 flex items-center justify-center transition-colors rounded-full border',
               timePeriod === 'custom'
-                ? 'bg-white text-dark-bg border-white'
-                : 'bg-dark-bg text-dark-muted border-dark-border hover:text-white hover:border-dark-muted'
+                ? theme === 'dark' ? 'bg-white text-gray-900 border-white' : 'bg-gray-900 text-white border-gray-900'
+                : theme === 'dark' 
+                  ? 'bg-dark-card text-dark-muted border-dark-border hover:text-white hover:border-dark-muted'
+                  : 'bg-white text-gray-500 border-gray-200 hover:text-gray-900 hover:border-gray-400'
             )}
           >
             <Calendar size={12} />
@@ -453,29 +461,42 @@ export default function DashboardPage() {
 
         {/* Custom Date Range Picker */}
         {showDatePicker && (
-          <div className="mb-3 p-3 bg-dark-bg border border-dark-border rounded-lg">
+          <div className={clsx("mb-3 p-3 rounded-lg border", theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200 shadow-sm')}>
             <div className="flex items-center gap-2">
               <div className="flex-1 min-w-0">
-                <label className="text-[10px] text-dark-muted uppercase tracking-wide block mb-1">From</label>
+                <label className={clsx("text-[10px] uppercase tracking-wide block mb-1", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>From</label>
                 <input
                   type="date"
                   value={customDateRange.start}
                   onChange={(e) => setCustomDateRange(prev => ({ ...prev, start: e.target.value }))}
-                  className="w-full px-2 py-1.5 bg-dark-border border border-dark-border text-white text-xs rounded-lg focus:outline-none focus:border-white"
+                  className={clsx(
+                    "w-full px-2 py-1.5 text-xs rounded-lg focus:outline-none",
+                    theme === 'dark' 
+                      ? 'bg-dark-border border border-dark-border text-white focus:border-white' 
+                      : 'bg-gray-50 border border-gray-200 text-gray-900 focus:border-gray-400'
+                  )}
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <label className="text-[10px] text-dark-muted uppercase tracking-wide block mb-1">To</label>
+                <label className={clsx("text-[10px] uppercase tracking-wide block mb-1", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>To</label>
                 <input
                   type="date"
                   value={customDateRange.end}
                   onChange={(e) => setCustomDateRange(prev => ({ ...prev, end: e.target.value }))}
-                  className="w-full px-2 py-1.5 bg-dark-border border border-dark-border text-white text-xs rounded-lg focus:outline-none focus:border-white"
+                  className={clsx(
+                    "w-full px-2 py-1.5 text-xs rounded-lg focus:outline-none",
+                    theme === 'dark' 
+                      ? 'bg-dark-border border border-dark-border text-white focus:border-white' 
+                      : 'bg-gray-50 border border-gray-200 text-gray-900 focus:border-gray-400'
+                  )}
                 />
               </div>
               <button
                 onClick={() => setShowDatePicker(false)}
-                className="mt-4 px-3 py-1.5 bg-white text-dark-bg text-xs font-medium rounded-full hover:bg-white/90 transition-colors whitespace-nowrap"
+                className={clsx(
+                  "mt-4 px-3 py-1.5 text-xs font-medium rounded-full transition-colors whitespace-nowrap",
+                  theme === 'dark' ? 'bg-white text-gray-900 hover:bg-white/90' : 'bg-gray-900 text-white hover:bg-gray-800'
+                )}
               >
                 Apply
               </button>
@@ -492,10 +513,13 @@ export default function DashboardPage() {
                 setShowAutomationFilter(!showAutomationFilter);
                 setShowChannelFilter(false);
               }}
-              className="w-full flex items-center justify-between px-2.5 py-1.5 bg-dark-bg border border-dark-border rounded-full text-[11px] text-white"
+              className={clsx(
+                "w-full flex items-center justify-between px-2.5 py-1.5 border rounded-full text-[11px]",
+                theme === 'dark' ? 'bg-dark-card border-dark-border text-white' : 'bg-white border-gray-200 text-gray-900'
+              )}
             >
               <span className="flex items-center gap-1.5 truncate">
-                <Zap size={10} className="text-dark-muted flex-shrink-0" />
+                <Zap size={10} className={theme === 'dark' ? 'text-dark-muted' : 'text-gray-500'} />
                 <span className="truncate">
                   {selectedAutomations.length === 0 
                     ? 'All Autos' 
@@ -503,17 +527,24 @@ export default function DashboardPage() {
                 </span>
               </span>
               <ChevronDown size={10} className={clsx(
-                'text-dark-muted transition-transform flex-shrink-0 ml-1',
+                'transition-transform flex-shrink-0 ml-1',
+                theme === 'dark' ? 'text-dark-muted' : 'text-gray-500',
                 showAutomationFilter && 'rotate-180'
               )} />
             </button>
             {showAutomationFilter && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-dark-bg border border-dark-border rounded-lg z-50 max-h-48 overflow-y-auto">
+              <div className={clsx(
+                "absolute top-full left-0 right-0 mt-1 rounded-lg z-50 max-h-48 overflow-y-auto border shadow-lg",
+                theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'
+              )}>
                 <button
                   onClick={() => setSelectedAutomations([])}
                   className={clsx(
-                    'w-full px-3 py-2 text-left text-xs hover:bg-dark-border',
-                    selectedAutomations.length === 0 ? 'text-white' : 'text-dark-muted'
+                    'w-full px-3 py-2 text-left text-xs',
+                    theme === 'dark' ? 'hover:bg-dark-border' : 'hover:bg-gray-50',
+                    selectedAutomations.length === 0 
+                      ? (theme === 'dark' ? 'text-white' : 'text-gray-900')
+                      : (theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')
                   )}
                 >
                   All Automations
@@ -529,8 +560,11 @@ export default function DashboardPage() {
                       );
                     }}
                     className={clsx(
-                      'w-full px-3 py-2 text-left text-xs hover:bg-dark-border flex items-center justify-between',
-                      selectedAutomations.includes(auto.id) ? 'text-white' : 'text-dark-muted'
+                      'w-full px-3 py-2 text-left text-xs flex items-center justify-between',
+                      theme === 'dark' ? 'hover:bg-dark-border' : 'hover:bg-gray-50',
+                      selectedAutomations.includes(auto.id) 
+                        ? (theme === 'dark' ? 'text-white' : 'text-gray-900')
+                        : (theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')
                     )}
                   >
                     <span className="truncate">{auto.name}</span>
@@ -550,7 +584,10 @@ export default function DashboardPage() {
                 setShowChannelFilter(!showChannelFilter);
                 setShowAutomationFilter(false);
               }}
-              className="w-full flex items-center justify-between px-2.5 py-1.5 bg-dark-bg border border-dark-border rounded-full text-[11px] text-white"
+              className={clsx(
+                "w-full flex items-center justify-between px-2.5 py-1.5 border rounded-full text-[11px]",
+                theme === 'dark' ? 'bg-dark-card border-dark-border text-white' : 'bg-white border-gray-200 text-gray-900'
+              )}
             >
               <span className="flex items-center gap-1.5 truncate">
                 <TelegramIcon size={10} id="filter-tg" className="flex-shrink-0" />
@@ -561,17 +598,24 @@ export default function DashboardPage() {
                 </span>
               </span>
               <ChevronDown size={10} className={clsx(
-                'text-dark-muted transition-transform flex-shrink-0 ml-1',
+                'transition-transform flex-shrink-0 ml-1',
+                theme === 'dark' ? 'text-dark-muted' : 'text-gray-500',
                 showChannelFilter && 'rotate-180'
               )} />
             </button>
             {showChannelFilter && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-dark-bg border border-dark-border rounded-lg z-50 max-h-48 overflow-y-auto">
+              <div className={clsx(
+                "absolute top-full left-0 right-0 mt-1 rounded-lg z-50 max-h-48 overflow-y-auto border shadow-lg",
+                theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'
+              )}>
                 <button
                   onClick={() => setSelectedChannels([])}
                   className={clsx(
-                    'w-full px-3 py-2 text-left text-xs hover:bg-dark-border',
-                    selectedChannels.length === 0 ? 'text-white' : 'text-dark-muted'
+                    'w-full px-3 py-2 text-left text-xs',
+                    theme === 'dark' ? 'hover:bg-dark-border' : 'hover:bg-gray-50',
+                    selectedChannels.length === 0 
+                      ? (theme === 'dark' ? 'text-white' : 'text-gray-900')
+                      : (theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')
                   )}
                 >
                   All Channels
@@ -587,8 +631,11 @@ export default function DashboardPage() {
                       );
                     }}
                     className={clsx(
-                      'w-full px-3 py-2 text-left text-xs hover:bg-dark-border flex items-center justify-between',
-                      selectedChannels.includes(channel.id) ? 'text-white' : 'text-dark-muted'
+                      'w-full px-3 py-2 text-left text-xs flex items-center justify-between',
+                      theme === 'dark' ? 'hover:bg-dark-border' : 'hover:bg-gray-50',
+                      selectedChannels.includes(channel.id) 
+                        ? (theme === 'dark' ? 'text-white' : 'text-gray-900')
+                        : (theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')
                     )}
                   >
                     <span className="truncate">{channel.name}</span>
@@ -604,9 +651,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Trades/Signals Section */}
-      <div className="border-t border-dark-border">
+      <div className={clsx("border-t", theme === 'dark' ? 'border-dark-border' : 'border-gray-200')}>
         {/* Main Tab Header - Trades vs Signals */}
-        <div className="sticky top-[57px] z-30 bg-dark-bg border-b border-dark-border">
+        <div className={clsx("sticky top-[57px] z-30 border-b", theme === 'dark' ? 'bg-dark-bg border-dark-border' : 'bg-gray-50 border-gray-200')}>
           <div className="flex items-center justify-between px-4 py-2">
             <div className="flex gap-1">
               <button
@@ -614,8 +661,8 @@ export default function DashboardPage() {
                 className={clsx(
                   'px-3 py-1 text-xs font-medium transition-colors rounded-full',
                   mainTab === 'trades'
-                    ? 'bg-white text-dark-bg'
-                    : 'text-dark-muted hover:text-white'
+                    ? theme === 'dark' ? 'bg-white text-gray-900' : 'bg-gray-900 text-white'
+                    : theme === 'dark' ? 'text-dark-muted hover:text-white' : 'text-gray-500 hover:text-gray-900'
                 )}
               >
                 Trades
@@ -625,14 +672,14 @@ export default function DashboardPage() {
                 className={clsx(
                   'px-3 py-1 text-xs font-medium transition-colors rounded-full',
                   mainTab === 'signals'
-                    ? 'bg-white text-dark-bg'
-                    : 'text-dark-muted hover:text-white'
+                    ? theme === 'dark' ? 'bg-white text-gray-900' : 'bg-gray-900 text-white'
+                    : theme === 'dark' ? 'text-dark-muted hover:text-white' : 'text-gray-500 hover:text-gray-900'
                 )}
               >
                 Signals
               </button>
             </div>
-            <span className="text-xs text-dark-muted">
+            <span className={clsx("text-xs", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
               {mainTab === 'trades' ? `${displayTrades.length} trades` : `${displaySignals.length} signals`}
             </span>
           </div>
@@ -648,8 +695,8 @@ export default function DashboardPage() {
                     className={clsx(
                       'px-2 py-0.5 text-[10px] font-medium transition-colors border',
                       tradesTab === tab
-                        ? 'border-white text-white'
-                        : 'border-dark-border text-dark-muted hover:text-white'
+                        ? theme === 'dark' ? 'border-white text-white' : 'border-gray-900 text-gray-900'
+                        : theme === 'dark' ? 'border-dark-border text-dark-muted hover:text-white' : 'border-gray-200 text-gray-500 hover:text-gray-900'
                     )}
                   >
                     {tab === 'all' ? 'All' : tab === 'open' ? 'Open' : 'Closed'}
@@ -665,8 +712,8 @@ export default function DashboardPage() {
                     className={clsx(
                       'px-2 py-0.5 text-[10px] font-medium transition-colors border',
                       signalsTab === tab
-                        ? 'border-white text-white'
-                        : 'border-dark-border text-dark-muted hover:text-white'
+                        ? theme === 'dark' ? 'border-white text-white' : 'border-gray-900 text-gray-900'
+                        : theme === 'dark' ? 'border-dark-border text-dark-muted hover:text-white' : 'border-gray-200 text-gray-500 hover:text-gray-900'
                     )}
                   >
                     {tab === 'all' ? 'All' : tab === 'executed' ? 'Executed' : tab === 'skipped' ? 'Skipped' : 'Pending'}
@@ -683,9 +730,9 @@ export default function DashboardPage() {
             // Trades List
             displayTrades.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <BarChart3 size={28} className="text-dark-muted mb-2" />
-                <p className="text-sm text-dark-muted">No trades found</p>
-                <p className="text-xs text-dark-muted mt-1">Try adjusting your filters</p>
+                <BarChart3 size={28} className={theme === 'dark' ? 'text-dark-muted' : 'text-gray-400'} />
+                <p className={clsx("text-sm", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>No trades found</p>
+                <p className={clsx("text-xs mt-1", theme === 'dark' ? 'text-dark-muted' : 'text-gray-400')}>Try adjusting your filters</p>
               </div>
             ) : (
               displayTrades.map((trade) => {
@@ -709,10 +756,11 @@ export default function DashboardPage() {
                     onClick={() => toggleExpand(`trade-${trade.id}`)}
                     onKeyDown={(e) => e.key === 'Enter' && toggleExpand(`trade-${trade.id}`)}
                     className={clsx(
-                      'bg-dark-bg cursor-pointer transition-all duration-300 ease-out',
+                      'cursor-pointer transition-all duration-300 ease-out border',
+                      theme === 'dark' ? 'bg-dark-card' : 'bg-white shadow-sm',
                       isOpen 
-                        ? 'border border-profit shadow-[0_0_15px_rgba(34,197,94,0.15)] animate-pulse-subtle' 
-                        : 'border border-dark-border'
+                        ? 'border-profit shadow-[0_0_15px_rgba(34,197,94,0.15)] animate-pulse-subtle' 
+                        : theme === 'dark' ? 'border-dark-border' : 'border-gray-200'
                     )}
                   >
                     {/* Main content */}
@@ -728,32 +776,33 @@ export default function DashboardPage() {
                           ) : (
                             <TrendingDown size={11} className="text-loss flex-shrink-0" />
                           )}
-                          <span className="text-[11px] font-medium text-white">{trade.instrument}</span>
-                          <span className="text-[10px] text-dark-muted">•</span>
+                          <span className={clsx("text-[11px] font-medium", theme === 'dark' ? 'text-white' : 'text-gray-900')}>{trade.instrument}</span>
+                          <span className={clsx("text-[10px]", theme === 'dark' ? 'text-dark-muted' : 'text-gray-400')}>•</span>
                           <div className="flex items-center gap-1">
                             <TelegramIcon size={10} id={`trade-${trade.id}`} className="flex-shrink-0" />
                             <KiteIcon size={10} className="flex-shrink-0" />
                           </div>
-                          <span className="text-[10px] text-dark-muted">{automation?.name}</span>
+                          <span className={clsx("text-[10px]", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>{automation?.name}</span>
                         </div>
                         <ChevronDown 
                           size={14} 
                           className={clsx(
-                            'text-dark-muted transition-transform duration-300 flex-shrink-0',
+                            'transition-transform duration-300 flex-shrink-0',
+                            theme === 'dark' ? 'text-dark-muted' : 'text-gray-400',
                             isExpanded && 'rotate-180'
                           )} 
                         />
                       </div>
                       {/* Row 2: Prices & P&L */}
                       <div className="flex items-center justify-between mt-1 relative">
-                        <span className="text-[10px] text-dark-muted tabular-nums">
+                        <span className={clsx("text-[10px] tabular-nums", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
                           {isOpen 
                             ? `₹${trade.entry_price} → ₹${trade.current_price} | SL:₹${trade.stop_loss}`
                             : `₹${trade.entry_price} → ₹${trade.exit_price} | SL:₹${trade.stop_loss}`
                           }
                         </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-dark-muted">
+                          <span className={clsx("text-[10px]", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
                             {formatDateTime(new Date(trade.entry_time))}
                           </span>
                           <span className={clsx(
@@ -774,35 +823,35 @@ export default function DashboardPage() {
                       <div className="overflow-hidden">
                         <div className={clsx(
                           'px-3 pb-3 pt-2 border-t',
-                          isOpen ? 'border-profit/30' : 'border-dark-border'
+                          isOpen ? 'border-profit/30' : theme === 'dark' ? 'border-dark-border' : 'border-gray-200'
                         )}>
                           <div className="grid grid-cols-3 gap-3 text-[10px]">
                             <div>
-                              <span className="text-dark-muted block">Direction</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Direction</span>
                               <span className={clsx('font-medium', isBuy ? 'text-profit' : 'text-loss')}>
                                 {trade.direction}
                               </span>
                             </div>
                             <div>
-                              <span className="text-dark-muted block">Quantity</span>
-                              <span className="text-white font-medium">{trade.quantity}</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Quantity</span>
+                              <span className={clsx("font-medium", theme === 'dark' ? 'text-white' : 'text-gray-900')}>{trade.quantity}</span>
                             </div>
                             <div>
-                              <span className="text-dark-muted block">Entry</span>
-                              <span className="text-white font-medium">₹{trade.entry_price}</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Entry</span>
+                              <span className={clsx("font-medium", theme === 'dark' ? 'text-white' : 'text-gray-900')}>₹{trade.entry_price}</span>
                             </div>
                             <div>
-                              <span className="text-dark-muted block">{isOpen ? 'Current' : 'Exit'}</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>{isOpen ? 'Current' : 'Exit'}</span>
                               <span className={clsx('font-medium', currentPnl >= 0 ? 'text-profit' : 'text-loss')}>
                                 ₹{isOpen ? trade.current_price : trade.exit_price}
                               </span>
                             </div>
                             <div>
-                              <span className="text-dark-muted block">Stop Loss</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Stop Loss</span>
                               <span className="text-loss font-medium">₹{trade.stop_loss}</span>
                             </div>
                             <div>
-                              <span className="text-dark-muted block">P&L</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>P&L</span>
                               <span className={clsx('font-semibold', currentPnl >= 0 ? 'text-profit' : 'text-loss')}>
                                 {currentPnl >= 0 ? '+' : ''}₹{currentPnl.toFixed(0)} ({currentPnlPercent >= 0 ? '+' : ''}{currentPnlPercent.toFixed(1)}%)
                               </span>
@@ -819,11 +868,16 @@ export default function DashboardPage() {
                                   e.stopPropagation();
                                   router.push(`/chats/${signal.provider_id}?messageId=${signal.message_id}`);
                                 }}
-                                className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-dark-border text-xs text-white hover:bg-dark-muted/30 transition-colors"
+                                className={clsx(
+                                  "mt-3 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs transition-colors",
+                                  theme === 'dark' 
+                                    ? 'bg-dark-border text-white hover:bg-dark-muted/30' 
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                )}
                               >
                                 <MessageCircle size={12} />
                                 View Signal in Chat
-                                <ExternalLink size={10} className="text-dark-muted" />
+                                <ExternalLink size={10} className={theme === 'dark' ? 'text-dark-muted' : 'text-gray-400'} />
                               </button>
                             );
                           })()}
@@ -838,9 +892,9 @@ export default function DashboardPage() {
             // Signals List
             displaySignals.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <AlertCircle size={28} className="text-dark-muted mb-2" />
-                <p className="text-sm text-dark-muted">No signals found</p>
-                <p className="text-xs text-dark-muted mt-1">Try adjusting your filters</p>
+                <AlertCircle size={28} className={theme === 'dark' ? 'text-dark-muted' : 'text-gray-400'} />
+                <p className={clsx("text-sm", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>No signals found</p>
+                <p className={clsx("text-xs mt-1", theme === 'dark' ? 'text-dark-muted' : 'text-gray-400')}>Try adjusting your filters</p>
               </div>
             ) : (
               displaySignals.map((signal) => {
@@ -860,11 +914,12 @@ export default function DashboardPage() {
                     onClick={() => toggleExpand(`signal-${signal.id}`)}
                     onKeyDown={(e) => e.key === 'Enter' && toggleExpand(`signal-${signal.id}`)}
                     className={clsx(
-                      'bg-dark-bg cursor-pointer transition-all duration-300 ease-out border',
+                      'cursor-pointer transition-all duration-300 ease-out border',
+                      theme === 'dark' ? 'bg-dark-card' : 'bg-white shadow-sm',
                       signal.execution_status === 'skipped' ? 'border-loss/30' :
                       signal.execution_status === 'executed' ? 'border-profit/30' :
                       signal.execution_status === 'pending_manual' ? 'border-warning/30' :
-                      'border-dark-border'
+                      theme === 'dark' ? 'border-dark-border' : 'border-gray-200'
                     )}
                   >
                     {/* Main content */}
@@ -877,10 +932,10 @@ export default function DashboardPage() {
                           ) : (
                             <TrendingDown size={11} className="text-loss flex-shrink-0" />
                           )}
-                          <span className="text-[11px] font-medium text-white">{signal.instrument}</span>
-                          <span className="text-[10px] text-dark-muted">•</span>
+                          <span className={clsx("text-[11px] font-medium", theme === 'dark' ? 'text-white' : 'text-gray-900')}>{signal.instrument}</span>
+                          <span className={clsx("text-[10px]", theme === 'dark' ? 'text-dark-muted' : 'text-gray-400')}>•</span>
                           <TelegramIcon size={10} id={`signal-${signal.id}`} className="flex-shrink-0" />
-                          <span className="text-[10px] text-dark-muted">{automation?.name}</span>
+                          <span className={clsx("text-[10px]", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>{automation?.name}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={clsx(
@@ -893,7 +948,8 @@ export default function DashboardPage() {
                           <ChevronDown 
                             size={14} 
                             className={clsx(
-                              'text-dark-muted transition-transform duration-300 flex-shrink-0',
+                              'transition-transform duration-300 flex-shrink-0',
+                              theme === 'dark' ? 'text-dark-muted' : 'text-gray-400',
                               isExpanded && 'rotate-180'
                             )} 
                           />
@@ -901,10 +957,10 @@ export default function DashboardPage() {
                       </div>
                       {/* Row 2: Prices & Time */}
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-[10px] text-dark-muted tabular-nums">
+                        <span className={clsx("text-[10px] tabular-nums", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
                           ₹{signal.entry_price} | SL:₹{signal.stop_loss} | T:₹{signal.targets[0]}
                         </span>
-                        <span className="text-[10px] text-dark-muted">
+                        <span className={clsx("text-[10px]", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
                           {formatDateTime(new Date(signal.parsed_at))}
                         </span>
                       </div>
@@ -916,33 +972,33 @@ export default function DashboardPage() {
                       isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
                     )}>
                       <div className="overflow-hidden">
-                        <div className="px-3 pb-3 pt-2 border-t border-dark-border">
+                        <div className={clsx("px-3 pb-3 pt-2 border-t", theme === 'dark' ? 'border-dark-border' : 'border-gray-200')}>
                           <div className="grid grid-cols-3 gap-3 text-[10px]">
                             <div>
-                              <span className="text-dark-muted block">Direction</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Direction</span>
                               <span className={clsx('font-medium', isBuy ? 'text-profit' : 'text-loss')}>
                                 {signal.direction}
                               </span>
                             </div>
                             <div>
-                              <span className="text-dark-muted block">Entry</span>
-                              <span className="text-white font-medium">₹{signal.entry_price}</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Entry</span>
+                              <span className={clsx("font-medium", theme === 'dark' ? 'text-white' : 'text-gray-900')}>₹{signal.entry_price}</span>
                             </div>
                             <div>
-                              <span className="text-dark-muted block">Confidence</span>
-                              <span className="text-white font-medium">{signal.confidence}%</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Confidence</span>
+                              <span className={clsx("font-medium", theme === 'dark' ? 'text-white' : 'text-gray-900')}>{signal.confidence}%</span>
                             </div>
                             <div>
-                              <span className="text-dark-muted block">Stop Loss</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Stop Loss</span>
                               <span className="text-loss font-medium">₹{signal.stop_loss}</span>
                             </div>
                             <div>
-                              <span className="text-dark-muted block">Target 1</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Target 1</span>
                               <span className="text-profit font-medium">₹{signal.targets[0]}</span>
                             </div>
                             <div>
-                              <span className="text-dark-muted block">Channel</span>
-                              <span className="text-white font-medium">{provider?.name}</span>
+                              <span className={clsx("block", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>Channel</span>
+                              <span className={clsx("font-medium", theme === 'dark' ? 'text-white' : 'text-gray-900')}>{provider?.name}</span>
                             </div>
                           </div>
                           
@@ -977,11 +1033,16 @@ export default function DashboardPage() {
                               e.stopPropagation();
                               router.push(`/chats/${signal.provider_id}?messageId=${signal.message_id}`);
                             }}
-                            className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-dark-border text-xs text-white hover:bg-dark-muted/30 transition-colors"
+                            className={clsx(
+                              "mt-3 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs transition-colors",
+                              theme === 'dark' 
+                                ? 'bg-dark-border text-white hover:bg-dark-muted/30' 
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            )}
                           >
                             <MessageCircle size={12} />
                             View in Chat
-                            <ExternalLink size={10} className="text-dark-muted" />
+                            <ExternalLink size={10} className={theme === 'dark' ? 'text-dark-muted' : 'text-gray-400'} />
                           </button>
                         </div>
                       </div>

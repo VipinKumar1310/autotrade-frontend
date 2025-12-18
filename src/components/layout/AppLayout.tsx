@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useStore } from "@/store/useStore";
 import { BottomNav } from "./BottomNav";
 import { Sidebar } from "./Sidebar";
+import { TopBar } from "./TopBar";
 import clsx from "clsx";
 
 interface AppLayoutProps {
@@ -42,7 +43,10 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Main content */}
       <main className="lg:pl-64">
-        <div className="min-h-screen pb-20 lg:pb-0">{children}</div>
+        {/* Top Bar with notification bell */}
+        <TopBar />
+
+        <div className="min-h-[calc(100vh-56px)] pb-20 lg:pb-0">{children}</div>
       </main>
 
       {/* Mobile Bottom Nav - hidden on desktop */}

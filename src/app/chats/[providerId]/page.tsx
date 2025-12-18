@@ -11,7 +11,7 @@ export default function ChatPage() {
   const params = useParams();
   const providerId = params.providerId as string;
   const router = useRouter();
-  const { isAuthenticated, getProviderById } = useStore();
+  const { isAuthenticated, getProviderById, theme } = useStore();
   const provider = getProviderById(providerId);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function ChatPage() {
       <AppLayout>
         <PageHeader title="Channel Not Found" showBack />
         <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-          <p className="text-dark-muted">This channel doesn&apos;t exist.</p>
+          <p className={theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'}>This channel doesn&apos;t exist.</p>
         </div>
       </AppLayout>
     );

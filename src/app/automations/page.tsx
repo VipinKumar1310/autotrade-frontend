@@ -7,10 +7,11 @@ import { useStore } from '@/store/useStore';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { AutomationCard } from '@/components/automations/AutomationCard';
+import clsx from 'clsx';
 
 export default function AutomationsPage() {
   const router = useRouter();
-  const { isAuthenticated, automations, getProviderById, getBrokerById } = useStore();
+  const { isAuthenticated, automations, getProviderById, getBrokerById, theme } = useStore();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -28,7 +29,10 @@ export default function AutomationsPage() {
         rightAction={
           <button
             onClick={() => router.push('/automations/new')}
-            className="flex h-9 w-9 items-center justify-center bg-white text-dark-bg transition-colors hover:bg-white/90"
+            className={clsx(
+              "flex h-9 w-9 items-center justify-center transition-colors",
+              theme === 'dark' ? 'bg-white text-dark-bg hover:bg-white/90' : 'bg-light-text text-white hover:bg-light-text/90'
+            )}
           >
             <Plus size={20} />
           </button>
@@ -38,18 +42,24 @@ export default function AutomationsPage() {
       <div className="p-4 space-y-3">
         {automations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="h-16 w-16 bg-dark-card flex items-center justify-center mb-4">
-              <Plus size={28} className="text-dark-muted" />
+            <div className={clsx(
+              "h-16 w-16 flex items-center justify-center mb-4",
+              theme === 'dark' ? 'bg-dark-card' : 'bg-light-card'
+            )}>
+              <Plus size={28} className={theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'} />
             </div>
-            <h3 className="text-lg font-medium text-white mb-2">
+            <h3 className={clsx("text-lg font-medium mb-2", theme === 'dark' ? 'text-white' : 'text-light-text')}>
               No automations yet
             </h3>
-            <p className="text-sm text-dark-muted max-w-xs mb-6">
+            <p className={clsx("text-sm max-w-xs mb-6", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>
               Connect a Telegram channel to a broker and start automating your trades
             </p>
             <button
               onClick={() => router.push('/automations/new')}
-              className="px-6 py-2.5 bg-white text-dark-bg font-medium hover:bg-white/90 transition-colors"
+              className={clsx(
+                "px-6 py-2.5 font-medium transition-colors",
+                theme === 'dark' ? 'bg-white text-dark-bg hover:bg-white/90' : 'bg-light-text text-white hover:bg-light-text/90'
+              )}
             >
               Create Automation
             </button>

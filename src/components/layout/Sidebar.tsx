@@ -6,7 +6,6 @@ import {
   Zap, 
   BarChart3, 
   MessageCircle, 
-  Bell, 
   Settings,
   Sun,
   Moon,
@@ -19,15 +18,13 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
   { href: '/automations', label: 'Automations', icon: Zap },
   { href: '/chats', label: 'Chats', icon: MessageCircle },
-  { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { theme, toggleTheme, notifications, logout, user } = useStore();
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const { theme, toggleTheme, logout, user } = useStore();
 
   const handleLogout = () => {
     logout();
@@ -65,7 +62,6 @@ export function Sidebar() {
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           const Icon = item.icon;
-          const showBadge = item.href === '/notifications' && unreadCount > 0;
 
           return (
             <Link
@@ -84,11 +80,6 @@ export function Sidebar() {
             >
               <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
               <span className="flex-1">{item.label}</span>
-              {showBadge && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-loss px-1.5 text-xs font-bold text-white">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </span>
-              )}
             </Link>
           );
         })}

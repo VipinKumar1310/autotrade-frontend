@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { X, TrendingUp, TrendingDown, Target, Shield, Clock, Check, XCircle } from 'lucide-react';
 import type { ParsedSignal, Trade } from '@/types';
 import { formatDateTime, formatCurrency } from '@/lib/utils';
+import { useStore } from '@/store/useStore';
 import clsx from 'clsx';
 
 interface SignalDrawerProps {
@@ -14,6 +15,8 @@ interface SignalDrawerProps {
 }
 
 export function SignalDrawer({ isOpen, onClose, signal, trade }: SignalDrawerProps) {
+  const { theme } = useStore();
+
   // Lock body scroll when drawer is open
   useEffect(() => {
     if (isOpen) {
@@ -43,10 +46,13 @@ export function SignalDrawer({ isOpen, onClose, signal, trade }: SignalDrawerPro
 
       {/* Drawer */}
       <div className="fixed inset-x-0 bottom-0 z-50 animate-slide-up">
-        <div className="bg-dark-bg border-t border-dark-border rounded-t-2xl max-h-[85vh] overflow-y-auto safe-bottom">
+        <div className={clsx(
+          "rounded-t-2xl max-h-[85vh] overflow-y-auto safe-bottom border-t",
+          theme === 'dark' ? 'bg-dark-bg border-dark-border' : 'bg-light-bg border-light-border'
+        )}>
           {/* Handle */}
-          <div className="sticky top-0 bg-dark-bg pt-3 pb-2">
-            <div className="w-10 h-1 bg-dark-border rounded-full mx-auto" />
+          <div className={clsx("sticky top-0 pt-3 pb-2", theme === 'dark' ? 'bg-dark-bg' : 'bg-light-bg')}>
+            <div className={clsx("w-10 h-1 rounded-full mx-auto", theme === 'dark' ? 'bg-dark-border' : 'bg-light-border')} />
           </div>
 
           {/* Header */}
@@ -65,16 +71,19 @@ export function SignalDrawer({ isOpen, onClose, signal, trade }: SignalDrawerPro
                   {signal.direction}
                 </span>
               </div>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className={clsx("text-lg font-semibold", theme === 'dark' ? 'text-white' : 'text-light-text')}>
                 {signal.instrument}
               </h2>
-              <p className="text-xs text-dark-muted mt-0.5">
+              <p className={clsx("text-xs mt-0.5", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>
                 Parsed {formatDateTime(new Date(signal.parsed_at))}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-dark-muted hover:text-white transition-colors -mr-2"
+              className={clsx(
+                "p-2 transition-colors -mr-2",
+                theme === 'dark' ? 'text-dark-muted hover:text-white' : 'text-light-muted hover:text-light-text'
+              )}
             >
               <X size={20} />
             </button>
@@ -84,32 +93,41 @@ export function SignalDrawer({ isOpen, onClose, signal, trade }: SignalDrawerPro
           <div className="px-4 pb-4 space-y-4">
             {/* Entry, SL, Targets */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-dark-card border border-dark-border rounded-lg p-3">
-                <div className="flex items-center gap-1.5 text-dark-muted mb-1">
+              <div className={clsx(
+                "rounded-lg p-3 border",
+                theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-light-card border-light-border'
+              )}>
+                <div className={clsx("flex items-center gap-1.5 mb-1", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>
                   <Target size={14} />
                   <span className="text-xs">Entry</span>
                 </div>
-                <p className="text-base font-medium text-white tabular-nums">
+                <p className={clsx("text-base font-medium tabular-nums", theme === 'dark' ? 'text-white' : 'text-light-text')}>
                   ₹{signal.entry_price.toLocaleString()}
                 </p>
-                <p className="text-[10px] text-dark-muted">
+                <p className={clsx("text-[10px]", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>
                   Range: ₹{signal.entry_range.min} - ₹{signal.entry_range.max}
                 </p>
               </div>
               
-              <div className="bg-dark-card border border-dark-border rounded-lg p-3">
+              <div className={clsx(
+                "rounded-lg p-3 border",
+                theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-light-card border-light-border'
+              )}>
                 <div className="flex items-center gap-1.5 text-loss mb-1">
                   <Shield size={14} />
                   <span className="text-xs">Stop Loss</span>
                 </div>
-                <p className="text-base font-medium text-white tabular-nums">
+                <p className={clsx("text-base font-medium tabular-nums", theme === 'dark' ? 'text-white' : 'text-light-text')}>
                   ₹{signal.stop_loss.toLocaleString()}
                 </p>
               </div>
             </div>
 
             {/* Targets */}
-            <div className="bg-dark-card border border-dark-border rounded-lg p-3">
+            <div className={clsx(
+              "rounded-lg p-3 border",
+              theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-light-card border-light-border'
+            )}>
               <div className="flex items-center gap-1.5 text-profit mb-2">
                 <TrendingUp size={14} />
                 <span className="text-xs">Targets</span>
@@ -122,7 +140,7 @@ export function SignalDrawer({ isOpen, onClose, signal, trade }: SignalDrawerPro
                       'px-2.5 py-1 rounded text-sm font-medium tabular-nums',
                       trade && trade.target_hit > index
                         ? 'bg-profit/20 text-profit'
-                        : 'bg-dark-border text-white'
+                        : theme === 'dark' ? 'bg-dark-border text-white' : 'bg-light-border text-light-text'
                     )}
                   >
                     T{index + 1}: ₹{target.toLocaleString()}
@@ -132,24 +150,27 @@ export function SignalDrawer({ isOpen, onClose, signal, trade }: SignalDrawerPro
             </div>
 
             {/* Confidence */}
-            <div className="flex items-center justify-between p-3 bg-dark-card border border-dark-border rounded-lg">
-              <span className="text-sm text-dark-muted">AI Confidence</span>
+            <div className={clsx(
+              "flex items-center justify-between p-3 rounded-lg border",
+              theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-light-card border-light-border'
+            )}>
+              <span className={clsx("text-sm", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>AI Confidence</span>
               <div className="flex items-center gap-2">
-                <div className="w-24 h-1.5 bg-dark-border rounded-full overflow-hidden">
+                <div className={clsx("w-24 h-1.5 rounded-full overflow-hidden", theme === 'dark' ? 'bg-dark-border' : 'bg-light-border')}>
                   <div 
-                    className="h-full bg-white rounded-full"
+                    className={clsx("h-full rounded-full", theme === 'dark' ? 'bg-white' : 'bg-light-text')}
                     style={{ width: `${signal.confidence * 100}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium text-white tabular-nums">
+                <span className={clsx("text-sm font-medium tabular-nums", theme === 'dark' ? 'text-white' : 'text-light-text')}>
                   {(signal.confidence * 100).toFixed(0)}%
                 </span>
               </div>
             </div>
 
             {/* Execution Status */}
-            <div className="border-t border-dark-border pt-4">
-              <h3 className="text-sm font-medium text-white mb-3">Execution Status</h3>
+            <div className={clsx("border-t pt-4", theme === 'dark' ? 'border-dark-border' : 'border-light-border')}>
+              <h3 className={clsx("text-sm font-medium mb-3", theme === 'dark' ? 'text-white' : 'text-light-text')}>Execution Status</h3>
               
               {isExecuted && trade && (
                 <div className="space-y-3">
@@ -159,26 +180,38 @@ export function SignalDrawer({ isOpen, onClose, signal, trade }: SignalDrawerPro
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-dark-card border border-dark-border rounded-lg p-3">
-                      <p className="text-xs text-dark-muted mb-1">Entry Price</p>
-                      <p className="text-sm font-medium text-white tabular-nums">
+                    <div className={clsx(
+                      "rounded-lg p-3 border",
+                      theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-light-card border-light-border'
+                    )}>
+                      <p className={clsx("text-xs mb-1", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Entry Price</p>
+                      <p className={clsx("text-sm font-medium tabular-nums", theme === 'dark' ? 'text-white' : 'text-light-text')}>
                         ₹{trade.entry_price.toLocaleString()}
                       </p>
                     </div>
-                    <div className="bg-dark-card border border-dark-border rounded-lg p-3">
-                      <p className="text-xs text-dark-muted mb-1">Exit Price</p>
-                      <p className="text-sm font-medium text-white tabular-nums">
+                    <div className={clsx(
+                      "rounded-lg p-3 border",
+                      theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-light-card border-light-border'
+                    )}>
+                      <p className={clsx("text-xs mb-1", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Exit Price</p>
+                      <p className={clsx("text-sm font-medium tabular-nums", theme === 'dark' ? 'text-white' : 'text-light-text')}>
                         {trade.exit_price ? `₹${trade.exit_price.toLocaleString()}` : '-'}
                       </p>
                     </div>
-                    <div className="bg-dark-card border border-dark-border rounded-lg p-3">
-                      <p className="text-xs text-dark-muted mb-1">Quantity</p>
-                      <p className="text-sm font-medium text-white tabular-nums">
+                    <div className={clsx(
+                      "rounded-lg p-3 border",
+                      theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-light-card border-light-border'
+                    )}>
+                      <p className={clsx("text-xs mb-1", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Quantity</p>
+                      <p className={clsx("text-sm font-medium tabular-nums", theme === 'dark' ? 'text-white' : 'text-light-text')}>
                         {trade.quantity}
                       </p>
                     </div>
-                    <div className="bg-dark-card border border-dark-border rounded-lg p-3">
-                      <p className="text-xs text-dark-muted mb-1">P&L</p>
+                    <div className={clsx(
+                      "rounded-lg p-3 border",
+                      theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-light-card border-light-border'
+                    )}>
+                      <p className={clsx("text-xs mb-1", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>P&L</p>
                       <p className={clsx(
                         'text-sm font-medium tabular-nums',
                         trade.pnl >= 0 ? 'text-profit' : 'text-loss'
@@ -188,9 +221,12 @@ export function SignalDrawer({ isOpen, onClose, signal, trade }: SignalDrawerPro
                     </div>
                   </div>
 
-                  <div className="p-3 bg-dark-card border border-dark-border rounded-lg">
+                  <div className={clsx(
+                    "p-3 rounded-lg border",
+                    theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-light-card border-light-border'
+                  )}>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-dark-muted">Result</span>
+                      <span className={clsx("text-sm", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Result</span>
                       <span className={clsx(
                         'text-sm font-semibold',
                         trade.pnl >= 0 ? 'text-profit' : 'text-loss'
@@ -227,7 +263,10 @@ export function SignalDrawer({ isOpen, onClose, signal, trade }: SignalDrawerPro
                       This signal requires manual confirmation before execution
                     </p>
                   </div>
-                  <button className="w-full py-2.5 bg-white text-dark-bg rounded-lg font-medium hover:bg-white/90 transition-colors">
+                  <button className={clsx(
+                    "w-full py-2.5 rounded-lg font-medium transition-colors",
+                    theme === 'dark' ? 'bg-white text-dark-bg hover:bg-white/90' : 'bg-light-text text-white hover:bg-light-text/90'
+                  )}>
                     Execute Trade
                   </button>
                 </div>
@@ -239,4 +278,3 @@ export function SignalDrawer({ isOpen, onClose, signal, trade }: SignalDrawerPro
     </>
   );
 }
-

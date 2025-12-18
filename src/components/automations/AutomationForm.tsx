@@ -26,7 +26,7 @@ const executionModes: { value: ExecutionMode; label: string; description: string
 
 export function AutomationForm({ automation }: AutomationFormProps) {
   const router = useRouter();
-  const { telegramProviders, brokers, createAutomation } = useStore();
+  const { telegramProviders, brokers, createAutomation, theme } = useStore();
   
   const connectedProviders = telegramProviders.filter((p) => p.connected);
   const connectedBrokers = brokers.filter((b) => b.connected);
@@ -83,7 +83,7 @@ export function AutomationForm({ automation }: AutomationFormProps) {
     <form onSubmit={handleSubmit} className="p-4 space-y-6">
       {/* Name */}
       <div>
-        <label className="block text-sm font-medium text-dark-muted mb-2">
+        <label className={clsx("block text-sm font-medium mb-2", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>
           Automation Name
         </label>
         <input
@@ -91,13 +91,18 @@ export function AutomationForm({ automation }: AutomationFormProps) {
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           placeholder="e.g., Nifty Options Auto"
-          className="w-full px-4 py-3 bg-dark-card border border-dark-border rounded-lg text-white placeholder-dark-muted/50 focus:border-white/30 transition-colors"
+          className={clsx(
+            "w-full px-4 py-3 rounded-lg transition-colors border",
+            theme === 'dark' 
+              ? 'bg-dark-card border-dark-border text-white placeholder-dark-muted/50 focus:border-white/30' 
+              : 'bg-light-card border-light-border text-light-text placeholder-light-muted/50 focus:border-light-text/30'
+          )}
         />
       </div>
 
       {/* Telegram Provider */}
       <div>
-        <label className="block text-sm font-medium text-dark-muted mb-2">
+        <label className={clsx("block text-sm font-medium mb-2", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>
           Telegram Provider
         </label>
         <div className="space-y-2">
@@ -105,10 +110,11 @@ export function AutomationForm({ automation }: AutomationFormProps) {
             <label
               key={provider.id}
               className={clsx(
-                'flex items-center gap-3 p-3 bg-dark-card border rounded-lg cursor-pointer transition-colors',
+                'flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors',
+                theme === 'dark' ? 'bg-dark-card' : 'bg-light-card',
                 formData.telegram_provider_id === provider.id
-                  ? 'border-white'
-                  : 'border-dark-border hover:border-dark-muted'
+                  ? theme === 'dark' ? 'border-white' : 'border-light-text'
+                  : theme === 'dark' ? 'border-dark-border hover:border-dark-muted' : 'border-light-border hover:border-light-muted'
               )}
             >
               <input
@@ -126,11 +132,11 @@ export function AutomationForm({ automation }: AutomationFormProps) {
                 {provider.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">{provider.name}</p>
-                <p className="text-xs text-dark-muted">{provider.signal_count} signals</p>
+                <p className={clsx("text-sm font-medium truncate", theme === 'dark' ? 'text-white' : 'text-light-text')}>{provider.name}</p>
+                <p className={clsx("text-xs", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>{provider.signal_count} signals</p>
               </div>
               {formData.telegram_provider_id === provider.id && (
-                <Check size={18} className="text-white" />
+                <Check size={18} className={theme === 'dark' ? 'text-white' : 'text-light-text'} />
               )}
             </label>
           ))}
@@ -139,7 +145,7 @@ export function AutomationForm({ automation }: AutomationFormProps) {
 
       {/* Broker */}
       <div>
-        <label className="block text-sm font-medium text-dark-muted mb-2">
+        <label className={clsx("block text-sm font-medium mb-2", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>
           Broker
         </label>
         <div className="space-y-2">
@@ -147,10 +153,11 @@ export function AutomationForm({ automation }: AutomationFormProps) {
             <label
               key={broker.id}
               className={clsx(
-                'flex items-center gap-3 p-3 bg-dark-card border rounded-lg cursor-pointer transition-colors',
+                'flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors',
+                theme === 'dark' ? 'bg-dark-card' : 'bg-light-card',
                 formData.broker_id === broker.id
-                  ? 'border-white'
-                  : 'border-dark-border hover:border-dark-muted'
+                  ? theme === 'dark' ? 'border-white' : 'border-light-text'
+                  : theme === 'dark' ? 'border-dark-border hover:border-dark-muted' : 'border-light-border hover:border-light-muted'
               )}
             >
               <input
@@ -168,11 +175,11 @@ export function AutomationForm({ automation }: AutomationFormProps) {
                 {broker.code.slice(0, 2)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white">{broker.name}</p>
-                <p className="text-xs text-dark-muted">ID: {broker.account_id}</p>
+                <p className={clsx("text-sm font-medium", theme === 'dark' ? 'text-white' : 'text-light-text')}>{broker.name}</p>
+                <p className={clsx("text-xs", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>ID: {broker.account_id}</p>
               </div>
               {formData.broker_id === broker.id && (
-                <Check size={18} className="text-white" />
+                <Check size={18} className={theme === 'dark' ? 'text-white' : 'text-light-text'} />
               )}
             </label>
           ))}
@@ -181,7 +188,7 @@ export function AutomationForm({ automation }: AutomationFormProps) {
 
       {/* Execution Mode */}
       <div>
-        <label className="block text-sm font-medium text-dark-muted mb-2">
+        <label className={clsx("block text-sm font-medium mb-2", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>
           Execution Mode
         </label>
         <div className="space-y-2">
@@ -191,10 +198,11 @@ export function AutomationForm({ automation }: AutomationFormProps) {
               <label
                 key={mode.value}
                 className={clsx(
-                  'flex items-center gap-3 p-3 bg-dark-card border rounded-lg cursor-pointer transition-colors',
+                  'flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors',
+                  theme === 'dark' ? 'bg-dark-card' : 'bg-light-card',
                   formData.execution_mode === mode.value
-                    ? 'border-white'
-                    : 'border-dark-border hover:border-dark-muted'
+                    ? theme === 'dark' ? 'border-white' : 'border-light-text'
+                    : theme === 'dark' ? 'border-dark-border hover:border-dark-muted' : 'border-light-border hover:border-light-muted'
                 )}
               >
                 <input
@@ -205,15 +213,15 @@ export function AutomationForm({ automation }: AutomationFormProps) {
                   onChange={(e) => setFormData({ ...formData, execution_mode: e.target.value as ExecutionMode })}
                   className="sr-only"
                 />
-                <div className="h-10 w-10 rounded-lg bg-dark-border flex items-center justify-center">
-                  <Icon size={20} className="text-white" />
+                <div className={clsx("h-10 w-10 rounded-lg flex items-center justify-center", theme === 'dark' ? 'bg-dark-border' : 'bg-light-border')}>
+                  <Icon size={20} className={theme === 'dark' ? 'text-white' : 'text-light-text'} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white">{mode.label}</p>
-                  <p className="text-xs text-dark-muted">{mode.description}</p>
+                  <p className={clsx("text-sm font-medium", theme === 'dark' ? 'text-white' : 'text-light-text')}>{mode.label}</p>
+                  <p className={clsx("text-xs", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>{mode.description}</p>
                 </div>
                 {formData.execution_mode === mode.value && (
-                  <Check size={18} className="text-white" />
+                  <Check size={18} className={theme === 'dark' ? 'text-white' : 'text-light-text'} />
                 )}
               </label>
             );
@@ -223,43 +231,63 @@ export function AutomationForm({ automation }: AutomationFormProps) {
 
       {/* Rules */}
       <div className="space-y-4">
-        <h3 className="text-sm font-medium text-white">Trade Rules</h3>
+        <h3 className={clsx("text-sm font-medium", theme === 'dark' ? 'text-white' : 'text-light-text')}>Trade Rules</h3>
         
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs text-dark-muted mb-1.5">Quantity</label>
+            <label className={clsx("block text-xs mb-1.5", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Quantity</label>
             <input
               type="number"
               value={formData.quantity}
               onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
-              className="w-full px-3 py-2.5 bg-dark-card border border-dark-border rounded-lg text-white text-sm focus:border-white/30 transition-colors"
+              className={clsx(
+                "w-full px-3 py-2.5 rounded-lg text-sm transition-colors border",
+                theme === 'dark' 
+                  ? 'bg-dark-card border-dark-border text-white focus:border-white/30' 
+                  : 'bg-light-card border-light-border text-light-text focus:border-light-text/30'
+              )}
             />
           </div>
           <div>
-            <label className="block text-xs text-dark-muted mb-1.5">Max Quantity</label>
+            <label className={clsx("block text-xs mb-1.5", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Max Quantity</label>
             <input
               type="number"
               value={formData.max_quantity}
               onChange={(e) => setFormData({ ...formData, max_quantity: parseInt(e.target.value) || 0 })}
-              className="w-full px-3 py-2.5 bg-dark-card border border-dark-border rounded-lg text-white text-sm focus:border-white/30 transition-colors"
+              className={clsx(
+                "w-full px-3 py-2.5 rounded-lg text-sm transition-colors border",
+                theme === 'dark' 
+                  ? 'bg-dark-card border-dark-border text-white focus:border-white/30' 
+                  : 'bg-light-card border-light-border text-light-text focus:border-light-text/30'
+              )}
             />
           </div>
           <div>
-            <label className="block text-xs text-dark-muted mb-1.5">Stop Loss %</label>
+            <label className={clsx("block text-xs mb-1.5", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Stop Loss %</label>
             <input
               type="number"
               value={formData.stop_loss_percent}
               onChange={(e) => setFormData({ ...formData, stop_loss_percent: parseInt(e.target.value) || 0 })}
-              className="w-full px-3 py-2.5 bg-dark-card border border-dark-border rounded-lg text-white text-sm focus:border-white/30 transition-colors"
+              className={clsx(
+                "w-full px-3 py-2.5 rounded-lg text-sm transition-colors border",
+                theme === 'dark' 
+                  ? 'bg-dark-card border-dark-border text-white focus:border-white/30' 
+                  : 'bg-light-card border-light-border text-light-text focus:border-light-text/30'
+              )}
             />
           </div>
           <div>
-            <label className="block text-xs text-dark-muted mb-1.5">Max Trades/Day</label>
+            <label className={clsx("block text-xs mb-1.5", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Max Trades/Day</label>
             <input
               type="number"
               value={formData.max_trades_per_day}
               onChange={(e) => setFormData({ ...formData, max_trades_per_day: parseInt(e.target.value) || 0 })}
-              className="w-full px-3 py-2.5 bg-dark-card border border-dark-border rounded-lg text-white text-sm focus:border-white/30 transition-colors"
+              className={clsx(
+                "w-full px-3 py-2.5 rounded-lg text-sm transition-colors border",
+                theme === 'dark' 
+                  ? 'bg-dark-card border-dark-border text-white focus:border-white/30' 
+                  : 'bg-light-card border-light-border text-light-text focus:border-light-text/30'
+              )}
             />
           </div>
         </div>
@@ -267,19 +295,22 @@ export function AutomationForm({ automation }: AutomationFormProps) {
 
       {/* Options */}
       <div className="space-y-3">
-        <h3 className="text-sm font-medium text-white">Options</h3>
+        <h3 className={clsx("text-sm font-medium", theme === 'dark' ? 'text-white' : 'text-light-text')}>Options</h3>
         
-        <label className="flex items-center justify-between p-3 bg-dark-card border border-dark-border rounded-lg cursor-pointer">
+        <label className={clsx(
+          "flex items-center justify-between p-3 rounded-lg cursor-pointer border",
+          theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-light-card border-light-border'
+        )}>
           <div className="flex items-center gap-3">
-            <Sparkles size={18} className="text-dark-muted" />
+            <Sparkles size={18} className={theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'} />
             <div>
-              <p className="text-sm font-medium text-white">AI Validation</p>
-              <p className="text-xs text-dark-muted">Validate signals before execution</p>
+              <p className={clsx("text-sm font-medium", theme === 'dark' ? 'text-white' : 'text-light-text')}>AI Validation</p>
+              <p className={clsx("text-xs", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Validate signals before execution</p>
             </div>
           </div>
           <div className={clsx(
             'relative w-11 h-6 rounded-full transition-colors',
-            formData.ai_validation ? 'bg-profit' : 'bg-dark-border'
+            formData.ai_validation ? 'bg-profit' : theme === 'dark' ? 'bg-dark-border' : 'bg-light-border'
           )}>
             <input
               type="checkbox"
@@ -294,18 +325,24 @@ export function AutomationForm({ automation }: AutomationFormProps) {
           </div>
         </label>
 
-        <div className="p-3 bg-dark-card border border-dark-border rounded-lg">
+        <div className={clsx(
+          "p-3 rounded-lg border",
+          theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-light-card border-light-border'
+        )}>
           <div className="flex items-center gap-3 mb-2">
-            <Clock size={18} className="text-dark-muted" />
+            <Clock size={18} className={theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'} />
             <div>
-              <p className="text-sm font-medium text-white">Delay Execution</p>
-              <p className="text-xs text-dark-muted">Wait before executing trade</p>
+              <p className={clsx("text-sm font-medium", theme === 'dark' ? 'text-white' : 'text-light-text')}>Delay Execution</p>
+              <p className={clsx("text-xs", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Wait before executing trade</p>
             </div>
           </div>
           <select
             value={formData.delay_execution_seconds}
             onChange={(e) => setFormData({ ...formData, delay_execution_seconds: parseInt(e.target.value) })}
-            className="w-full px-3 py-2 bg-dark-border border-0 rounded-lg text-white text-sm focus:ring-0"
+            className={clsx(
+              "w-full px-3 py-2 border-0 rounded-lg text-sm focus:ring-0",
+              theme === 'dark' ? 'bg-dark-border text-white' : 'bg-light-border text-light-text'
+            )}
           >
             <option value={0}>No delay</option>
             <option value={5}>5 seconds</option>
@@ -324,13 +361,13 @@ export function AutomationForm({ automation }: AutomationFormProps) {
           className={clsx(
             'w-full py-3.5 rounded-lg text-base font-semibold transition-all',
             !isSubmitting && formData.telegram_provider_id && formData.broker_id
-              ? 'bg-white text-dark-bg hover:bg-white/90 active:scale-[0.98]'
-              : 'bg-dark-card text-dark-muted cursor-not-allowed'
+              ? theme === 'dark' ? 'bg-white text-dark-bg hover:bg-white/90 active:scale-[0.98]' : 'bg-light-text text-white hover:bg-light-text/90 active:scale-[0.98]'
+              : theme === 'dark' ? 'bg-dark-card text-dark-muted cursor-not-allowed' : 'bg-light-card text-light-muted cursor-not-allowed'
           )}
         >
           {isSubmitting ? (
             <div className="flex items-center justify-center gap-2">
-              <div className="h-5 w-5 border-2 border-dark-muted border-t-transparent rounded-full animate-spin" />
+              <div className={clsx("h-5 w-5 border-2 border-t-transparent rounded-full animate-spin", theme === 'dark' ? 'border-dark-muted' : 'border-light-muted')} />
               <span>Creating...</span>
             </div>
           ) : automation ? (
@@ -343,4 +380,3 @@ export function AutomationForm({ automation }: AutomationFormProps) {
     </form>
   );
 }
-

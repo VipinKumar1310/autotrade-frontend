@@ -5,13 +5,14 @@ import { useStore } from '@/store/useStore';
 import { MessageBubble } from './MessageBubble';
 import { SignalDrawer } from './SignalDrawer';
 import type { ParsedSignal, Trade } from '@/types';
+import clsx from 'clsx';
 
 interface ChatViewProps {
   providerId: string;
 }
 
 export function ChatView({ providerId }: ChatViewProps) {
-  const { getMessagesByProvider, getSignalByMessageId, getTradeBySignalId } = useStore();
+  const { getMessagesByProvider, getSignalByMessageId, getTradeBySignalId, theme } = useStore();
   const messages = getMessagesByProvider(providerId);
   
   const [selectedSignal, setSelectedSignal] = useState<{
@@ -59,7 +60,7 @@ export function ChatView({ providerId }: ChatViewProps) {
   if (messages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-        <p className="text-dark-muted">No messages yet</p>
+        <p className={theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'}>No messages yet</p>
       </div>
     );
   }
@@ -73,7 +74,10 @@ export function ChatView({ providerId }: ChatViewProps) {
             <div key={date} className="space-y-3">
               {/* Date header */}
               <div className="flex justify-center py-2">
-                <span className="px-3 py-1 bg-dark-card rounded-full text-xs text-dark-muted">
+                <span className={clsx(
+                  "px-3 py-1 rounded-full text-xs",
+                  theme === 'dark' ? 'bg-dark-card text-dark-muted' : 'bg-light-card text-light-muted'
+                )}>
                   {formatDateHeader(date)}
                 </span>
               </div>
@@ -102,4 +106,3 @@ export function ChatView({ providerId }: ChatViewProps) {
     </>
   );
 }
-
