@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { PageHeader } from '@/components/layout/PageHeader';
 import clsx from 'clsx';
 
 export default function SettingsPage() {
@@ -49,8 +48,6 @@ export default function SettingsPage() {
 
   return (
     <AppLayout>
-      <PageHeader title="Settings" />
-
       <div className="p-4 space-y-6">
         {/* User Profile */}
         {user && (
@@ -96,9 +93,9 @@ export default function SettingsPage() {
             >
               <div className="flex items-center gap-3">
                 {theme === 'dark' ? (
-                  <Moon size={20} className={theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'} />
+                  <Moon size={20} className="text-dark-muted" />
                 ) : (
-                  <Sun size={20} className={theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'} />
+                  <Sun size={20} className="text-light-muted" />
                 )}
                 <div className="text-left">
                   <p className={clsx("text-sm font-medium", theme === 'dark' ? 'text-white' : 'text-light-text')}>Theme</p>

@@ -319,24 +319,6 @@ export default function DashboardPage() {
 
   return (
     <AppLayout>
-      {/* Header */}
-      <header className={clsx(
-        "sticky top-0 z-40 border-b",
-        theme === 'dark' ? 'bg-dark-bg border-dark-border' : 'bg-light-bg border-light-border'
-      )}>
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className={clsx("text-xl font-bold", theme === 'dark' ? 'text-white' : 'text-light-text')}>Dashboard</h1>
-              <p className={clsx("text-xs mt-0.5", theme === 'dark' ? 'text-dark-muted' : 'text-light-muted')}>Your trading performance</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <BarChart3 size={20} className={theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'} />
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Summary Cards */}
       <div className="px-4 py-3">
         <div className="grid grid-cols-2 gap-3">
@@ -653,7 +635,7 @@ export default function DashboardPage() {
       {/* Trades/Signals Section */}
       <div className={clsx("border-t", theme === 'dark' ? 'border-dark-border' : 'border-gray-200')}>
         {/* Main Tab Header - Trades vs Signals */}
-        <div className={clsx("sticky top-[57px] z-30 border-b", theme === 'dark' ? 'bg-dark-bg border-dark-border' : 'bg-gray-50 border-gray-200')}>
+        <div className={clsx("sticky top-0 z-30 border-b", theme === 'dark' ? 'bg-dark-bg border-dark-border' : 'bg-gray-50 border-gray-200')}>
           <div className="flex items-center justify-between px-4 py-2">
             <div className="flex gap-1">
               <button

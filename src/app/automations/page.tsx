@@ -1,17 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { PageHeader } from '@/components/layout/PageHeader';
 import { AutomationCard } from '@/components/automations/AutomationCard';
+import { CreateAutomationModal } from '@/components/automations/CreateAutomationModal';
 import clsx from 'clsx';
 
 export default function AutomationsPage() {
   const router = useRouter();
   const { isAuthenticated, automations, getProviderById, getBrokerById, theme } = useStore();
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -23,23 +24,20 @@ export default function AutomationsPage() {
 
   return (
     <AppLayout>
-      <PageHeader 
-        title="Automations" 
-        subtitle={`${automations.length} active connections`}
-        rightAction={
-          <button
-            onClick={() => router.push('/automations/new')}
-            className={clsx(
-              "flex h-9 w-9 items-center justify-center transition-colors",
-              theme === 'dark' ? 'bg-white text-dark-bg hover:bg-white/90' : 'bg-light-text text-white hover:bg-light-text/90'
-            )}
-          >
-            <Plus size={20} />
-          </button>
-        }
-      />
-
       <div className="p-4 space-y-3">
+        {/* Add Automation Button */}
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className={clsx(
+            "w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed transition-colors",
+            theme === 'dark' 
+              ? 'border-dark-border text-dark-muted hover:border-white hover:text-white' 
+              : 'border-gray-200 text-gray-500 hover:border-gray-900 hover:text-gray-900'
+          )}
+        >
+          <Plus size={18} />
+          <span className="text-sm font-medium">Add Automation</span>
+        </button>
         {automations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className={clsx(
@@ -55,7 +53,7 @@ export default function AutomationsPage() {
               Connect a Telegram channel to a broker and start automating your trades
             </p>
             <button
-              onClick={() => router.push('/automations/new')}
+              onClick={() => setShowCreateModal(true)}
               className={clsx(
                 "px-6 py-2.5 font-medium transition-colors",
                 theme === 'dark' ? 'bg-white text-dark-bg hover:bg-white/90' : 'bg-light-text text-white hover:bg-light-text/90'
@@ -80,6 +78,12 @@ export default function AutomationsPage() {
           })
         )}
       </div>
+
+      {/* Create Automation Modal */}
+      <CreateAutomationModal 
+        isOpen={showCreateModal} 
+        onClose={() => setShowCreateModal(false)} 
+      />
     </AppLayout>
   );
 }

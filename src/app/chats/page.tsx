@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/useStore';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { PageHeader } from '@/components/layout/PageHeader';
 import { ChatList } from '@/components/chats/ChatList';
 
 export default function ChatsPage() {
@@ -21,10 +20,6 @@ export default function ChatsPage() {
 
   return (
     <AppLayout>
-      <PageHeader 
-        title="Chats" 
-        subtitle="Connected Telegram channels"
-      />
       <ChatList />
     </AppLayout>
   );
