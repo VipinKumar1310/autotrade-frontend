@@ -22,35 +22,38 @@ export function TopBar() {
   const totalIssues = unreadCount + (hasConnectionIssues ? 1 : 0);
 
   return (
-    <>
-      <header className={clsx(
-        'sticky top-0 z-40 flex h-14 items-center justify-between border-b px-4 backdrop-blur-sm',
-        theme === 'dark' 
-          ? 'border-dark-border bg-dark-bg/95' 
-          : 'border-light-border bg-light-bg/95'
-      )}>
-        {/* Logo - visible on mobile only */}
-        <Link href="/dashboard" className="flex items-center gap-2 lg:hidden">
-          <div className={clsx(
-            'flex h-8 w-8 items-center justify-center rounded-lg',
-            theme === 'dark' ? 'bg-white' : 'bg-light-text'
-          )}>
-            <Zap size={18} className={theme === 'dark' ? 'text-dark-bg' : 'text-light-bg'} />
-          </div>
-          <span className={clsx(
-            'text-base font-semibold tracking-tight',
-            theme === 'dark' ? 'text-white' : 'text-light-text'
-          )}>
-            AutoTrade
-          </span>
-        </Link>
+    <header className={clsx(
+      'sticky top-0 z-40 flex h-14 items-center justify-between border-b px-4 backdrop-blur-sm',
+      theme === 'dark' 
+        ? 'border-dark-border bg-dark-bg/95' 
+        : 'border-light-border bg-light-bg/95'
+    )}>
+      {/* Logo - visible on mobile only */}
+      <Link href="/dashboard" className="flex items-center gap-2 lg:hidden">
+        <div className={clsx(
+          'flex h-8 w-8 items-center justify-center rounded-lg',
+          theme === 'dark' ? 'bg-white' : 'bg-light-text'
+        )}>
+          <Zap size={18} className={theme === 'dark' ? 'text-dark-bg' : 'text-light-bg'} />
+        </div>
+        <span className={clsx(
+          'text-base font-semibold tracking-tight',
+          theme === 'dark' ? 'text-white' : 'text-light-text'
+        )}>
+          AutoTrade
+        </span>
+      </Link>
 
-        {/* Spacer for desktop */}
-        <div className="hidden lg:block" />
+      {/* Spacer for desktop */}
+      <div className="hidden lg:block" />
 
-        {/* Notification Bell */}
+      {/* Notification Bell with Dropdown */}
+      <div className="relative">
         <button
-          onClick={() => setIsNotificationOpen(true)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsNotificationOpen(!isNotificationOpen);
+          }}
           className={clsx(
             'relative p-2 rounded-lg transition-colors',
             theme === 'dark' 
@@ -75,14 +78,13 @@ export function TopBar() {
             <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-warning animate-pulse" />
           )}
         </button>
-      </header>
 
-      {/* Notification Bottom Sheet */}
-      <NotificationSheet 
-        isOpen={isNotificationOpen} 
-        onClose={() => setIsNotificationOpen(false)} 
-      />
-    </>
+        {/* Notification Dropdown */}
+        <NotificationSheet 
+          isOpen={isNotificationOpen} 
+          onClose={() => setIsNotificationOpen(false)} 
+        />
+      </div>
+    </header>
   );
 }
-

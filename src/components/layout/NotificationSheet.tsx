@@ -15,13 +15,13 @@ import { TelegramIcon } from '@/components/icons/TelegramIcon';
 import clsx from 'clsx';
 import Image from 'next/image';
 
-interface NotificationSheetProps {
+interface NotificationDropdownProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function NotificationSheet({ isOpen, onClose }: NotificationSheetProps) {
-  const sheetRef = useRef<HTMLDivElement>(null);
+export function NotificationSheet({ isOpen, onClose }: NotificationDropdownProps) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { 
     theme, 
     notifications, 
@@ -41,19 +41,25 @@ export function NotificationSheet({ isOpen, onClose }: NotificationSheetProps) {
   // Close on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (sheetRef.current && !sheetRef.current.contains(event.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = 'hidden';
+      // Delay to prevent immediate closing from the same click that opened it
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+      }, 100);
+      
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = '';
     };
   }, [isOpen, onClose]);
 
@@ -78,15 +84,15 @@ export function NotificationSheet({ isOpen, onClose }: NotificationSheetProps) {
     switch (type) {
       case 'trade_executed':
       case 'signal_detected':
-        return <CheckCircle2 size={16} className="text-profit" />;
+        return <CheckCircle2 size={14} className="text-profit" />;
       case 'trade_skipped':
       case 'error':
-        return <AlertCircle size={16} className="text-loss" />;
+        return <AlertCircle size={14} className="text-loss" />;
       case 'message_edited':
       case 'message_deleted':
-        return <AlertTriangle size={16} className="text-warning" />;
+        return <AlertTriangle size={14} className="text-warning" />;
       default:
-        return <Info size={16} className="text-dark-muted" />;
+        return <Info size={14} className={theme === 'dark' ? 'text-dark-muted' : 'text-gray-400'} />;
     }
   };
 
@@ -97,239 +103,249 @@ export function NotificationSheet({ isOpen, onClose }: NotificationSheetProps) {
     const diffMins = Math.floor(diffMs / (1000 * 60));
     
     if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 60) return `${diffMins}m`;
     
     const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffHours < 24) return `${diffHours}h`;
     
     const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays < 7) return `${diffDays}d`;
     
     return date.toLocaleDateString();
   };
 
+  if (!isOpen) return null;
+
+  // Take only 5 most recent notifications for display
+  const displayNotifications = notifications.slice(0, 10);
+  const connectionIssuesCount = disconnectedTelegram.length + disconnectedBrokers.length;
+
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className={clsx(
-          'fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300',
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        )}
-      />
-
-      {/* Bottom Sheet */}
-      <div
-        ref={sheetRef}
-        className={clsx(
-          'fixed inset-x-0 bottom-0 z-[70] max-h-[85vh] transform rounded-t-2xl transition-transform duration-300 ease-out',
-          theme === 'dark' ? 'bg-dark-bg border-t border-dark-border' : 'bg-light-bg border-t border-light-border',
-          isOpen ? 'translate-y-0' : 'translate-y-full'
-        )}
-      >
-        {/* Handle */}
-        <div className="flex justify-center pt-3 pb-2">
-          <div className={clsx(
-            'h-1 w-10 rounded-full',
-            theme === 'dark' ? 'bg-dark-border' : 'bg-light-border'
-          )} />
+    <div
+      ref={dropdownRef}
+      className={clsx(
+        'absolute top-full right-0 mt-2 w-80 max-h-80 overflow-hidden border shadow-xl z-[100]',
+        theme === 'dark' ? 'bg-dark-bg border-dark-border' : 'bg-white border-gray-200'
+      )}
+      style={{ transform: 'translateX(0)' }}
+    >
+      {/* Header */}
+      <div className={clsx(
+        'flex items-center justify-between px-3 py-2.5 border-b',
+        theme === 'dark' ? 'border-dark-border' : 'border-gray-100'
+      )}>
+        <div className="flex items-center gap-2">
+          <span className={clsx(
+            'text-sm font-semibold',
+            theme === 'dark' ? 'text-white' : 'text-gray-900'
+          )}>
+            Notifications
+          </span>
+          {unreadCount > 0 && (
+            <span className="flex h-4 min-w-4 items-center justify-center bg-loss px-1 text-[10px] font-bold text-white">
+              {unreadCount}
+            </span>
+          )}
         </div>
-
-        {/* Header */}
-        <div className={clsx(
-          'flex items-center justify-between px-4 pb-3 border-b',
-          theme === 'dark' ? 'border-dark-border' : 'border-light-border'
-        )}>
-          <div className="flex items-center gap-3">
-            <Bell size={20} className={theme === 'dark' ? 'text-white' : 'text-light-text'} />
-            <h2 className={clsx(
-              'text-lg font-semibold',
-              theme === 'dark' ? 'text-white' : 'text-light-text'
-            )}>
-              Notifications
-            </h2>
-            {unreadCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-loss px-1.5 text-xs font-bold text-white">
-                {unreadCount}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllNotificationsRead}
-                className={clsx(
-                  'text-xs font-medium px-2 py-1 rounded transition-colors',
-                  theme === 'dark' 
-                    ? 'text-dark-muted hover:text-white hover:bg-dark-card' 
-                    : 'text-light-muted hover:text-light-text hover:bg-light-card'
-                )}
-              >
-                Mark all read
-              </button>
-            )}
+        <div className="flex items-center gap-1">
+          {unreadCount > 0 && (
             <button
-              onClick={onClose}
+              onClick={(e) => {
+                e.stopPropagation();
+                markAllNotificationsRead();
+              }}
               className={clsx(
-                'p-1.5 rounded-lg transition-colors',
+                'text-[10px] font-medium px-1.5 py-0.5 transition-colors',
                 theme === 'dark' 
-                  ? 'text-dark-muted hover:bg-dark-card hover:text-white' 
-                  : 'text-light-muted hover:bg-light-card hover:text-light-text'
+                  ? 'text-dark-muted hover:text-white' 
+                  : 'text-gray-400 hover:text-gray-900'
               )}
             >
-              <X size={20} />
+              Mark all
             </button>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(85vh-80px)] pb-safe">
-          {/* Connection Issues Section */}
-          {hasConnectionIssues && (
-            <div className={clsx(
-              'px-4 py-3 border-b',
-              theme === 'dark' ? 'border-dark-border bg-dark-card/50' : 'border-light-border bg-light-card/50'
-            )}>
-              <div className="flex items-center gap-2 mb-3">
-                <AlertTriangle size={16} className="text-warning" />
-                <span className={clsx(
-                  'text-sm font-medium',
-                  theme === 'dark' ? 'text-white' : 'text-light-text'
-                )}>
-                  Connection Issues
-                </span>
-              </div>
-              
-              <div className="space-y-2">
-                {/* Disconnected Telegram Providers */}
-                {disconnectedTelegram.map((provider) => (
-                  <button
-                    key={provider.id}
-                    className={clsx(
-                      'w-full flex items-center gap-3 p-2 rounded-lg transition-colors',
-                      theme === 'dark' 
-                        ? 'bg-dark-bg hover:bg-dark-border' 
-                        : 'bg-light-bg hover:bg-light-border'
-                    )}
-                  >
-                    <TelegramIcon size={20} />
-                    <div className="flex-1 text-left">
-                      <p className={clsx(
-                        'text-sm font-medium',
-                        theme === 'dark' ? 'text-white' : 'text-light-text'
-                      )}>
-                        {provider.name}
-                      </p>
-                      <p className="text-xs text-loss">Disconnected - Tap to reconnect</p>
-                    </div>
-                    <ChevronRight size={16} className="text-dark-muted" />
-                  </button>
-                ))}
-
-                {/* Disconnected Brokers */}
-                {disconnectedBrokers.map((broker) => (
-                  <button
-                    key={broker.id}
-                    className={clsx(
-                      'w-full flex items-center gap-3 p-2 rounded-lg transition-colors',
-                      theme === 'dark' 
-                        ? 'bg-dark-bg hover:bg-dark-border' 
-                        : 'bg-light-bg hover:bg-light-border'
-                    )}
-                  >
-                    {broker.code === 'KITE' ? (
-                      <Image
-                        src="/icons/kite-zerodha.webp"
-                        alt={broker.name}
-                        width={20}
-                        height={20}
-                        className="rounded flex-shrink-0"
-                      />
-                    ) : (
-                      <div 
-                        className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
-                        style={{ backgroundColor: broker.logo_color || '#666' }}
-                      >
-                        {broker.name.charAt(0)}
-                      </div>
-                    )}
-                    <div className="flex-1 text-left">
-                      <p className={clsx(
-                        'text-sm font-medium',
-                        theme === 'dark' ? 'text-white' : 'text-light-text'
-                      )}>
-                        {broker.name}
-                      </p>
-                      <p className="text-xs text-loss">Disconnected - Tap to reconnect</p>
-                    </div>
-                    <ChevronRight size={16} className="text-dark-muted" />
-                  </button>
-                ))}
-              </div>
-            </div>
           )}
-
-          {/* Notifications List */}
-          <div className="px-4 py-2">
-            {notifications.length === 0 ? (
-              <div className="py-12 text-center">
-                <Bell size={40} className={clsx(
-                  'mx-auto mb-3',
-                  theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'
-                )} />
-                <p className={theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'}>
-                  No notifications yet
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                {notifications.map((notification) => (
-                  <button
-                    key={notification.id}
-                    onClick={() => markNotificationRead(notification.id)}
-                    className={clsx(
-                      'w-full flex items-start gap-3 p-3 rounded-lg text-left transition-colors',
-                      !notification.read && (theme === 'dark' ? 'bg-dark-card' : 'bg-light-card'),
-                      theme === 'dark' 
-                        ? 'hover:bg-dark-card' 
-                        : 'hover:bg-light-card'
-                    )}
-                  >
-                    <div className="mt-0.5">
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={clsx(
-                        'text-sm',
-                        theme === 'dark' ? 'text-white' : 'text-light-text',
-                        !notification.read && 'font-medium'
-                      )}>
-                        {notification.title}
-                      </p>
-                      <p className={clsx(
-                        'text-xs mt-0.5 line-clamp-2',
-                        theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'
-                      )}>
-                        {notification.message}
-                      </p>
-                      <p className={clsx(
-                        'text-[10px] mt-1',
-                        theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'
-                      )}>
-                        {formatTime(notification.timestamp)}
-                      </p>
-                    </div>
-                    {!notification.read && (
-                      <div className="w-2 h-2 rounded-full bg-loss mt-1.5" />
-                    )}
-                  </button>
-                ))}
-              </div>
+          <button
+            onClick={onClose}
+            className={clsx(
+              'p-1 transition-colors',
+              theme === 'dark' 
+                ? 'text-dark-muted hover:text-white' 
+                : 'text-gray-400 hover:text-gray-900'
             )}
-          </div>
+          >
+            <X size={14} />
+          </button>
         </div>
       </div>
-    </>
+
+      {/* Scrollable Content */}
+      <div className="overflow-y-auto max-h-64">
+        {/* Connection Issues Section */}
+        {hasConnectionIssues && (
+          <div className={clsx(
+            'px-3 py-2 border-b',
+            theme === 'dark' ? 'border-dark-border bg-dark-card/50' : 'border-gray-100 bg-gray-50'
+          )}>
+            <div className="flex items-center gap-1.5 mb-2">
+              <AlertTriangle size={12} className="text-warning" />
+              <span className={clsx(
+                'text-[10px] font-semibold uppercase tracking-wide',
+                theme === 'dark' ? 'text-warning' : 'text-warning'
+              )}>
+                {connectionIssuesCount} Connection Issue{connectionIssuesCount > 1 ? 's' : ''}
+              </span>
+            </div>
+            
+            <div className="space-y-1">
+              {/* Disconnected Telegram Providers */}
+              {disconnectedTelegram.map((provider) => (
+                <button
+                  key={provider.id}
+                  className={clsx(
+                    'w-full flex items-center gap-2 p-1.5 transition-colors',
+                    theme === 'dark' 
+                      ? 'hover:bg-dark-border' 
+                      : 'hover:bg-gray-100'
+                  )}
+                >
+                  <TelegramIcon size={16} />
+                  <div className="flex-1 text-left min-w-0">
+                    <p className={clsx(
+                      'text-xs font-medium truncate',
+                      theme === 'dark' ? 'text-white' : 'text-gray-900'
+                    )}>
+                      {provider.name}
+                    </p>
+                  </div>
+                  <span className="text-[9px] text-loss">Reconnect</span>
+                  <ChevronRight size={12} className={theme === 'dark' ? 'text-dark-muted' : 'text-gray-400'} />
+                </button>
+              ))}
+
+              {/* Disconnected Brokers */}
+              {disconnectedBrokers.map((broker) => (
+                <button
+                  key={broker.id}
+                  className={clsx(
+                    'w-full flex items-center gap-2 p-1.5 transition-colors',
+                    theme === 'dark' 
+                      ? 'hover:bg-dark-border' 
+                      : 'hover:bg-gray-100'
+                  )}
+                >
+                  {broker.code === 'KITE' ? (
+                    <Image
+                      src="/icons/kite-zerodha.webp"
+                      alt={broker.name}
+                      width={16}
+                      height={16}
+                      className="flex-shrink-0"
+                    />
+                  ) : (
+                    <div 
+                      className="w-4 h-4 flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0"
+                      style={{ backgroundColor: broker.logo_color || '#666' }}
+                    >
+                      {broker.name.charAt(0)}
+                    </div>
+                  )}
+                  <div className="flex-1 text-left min-w-0">
+                    <p className={clsx(
+                      'text-xs font-medium truncate',
+                      theme === 'dark' ? 'text-white' : 'text-gray-900'
+                    )}>
+                      {broker.name}
+                    </p>
+                  </div>
+                  <span className="text-[9px] text-loss">Reconnect</span>
+                  <ChevronRight size={12} className={theme === 'dark' ? 'text-dark-muted' : 'text-gray-400'} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Notifications List */}
+        <div>
+          {displayNotifications.length === 0 && !hasConnectionIssues ? (
+            <div className="py-8 text-center">
+              <Bell size={24} className={clsx(
+                'mx-auto mb-2',
+                theme === 'dark' ? 'text-dark-muted' : 'text-gray-300'
+              )} />
+              <p className={clsx(
+                'text-xs',
+                theme === 'dark' ? 'text-dark-muted' : 'text-gray-400'
+              )}>
+                No notifications
+              </p>
+            </div>
+          ) : (
+            displayNotifications.map((notification) => (
+              <button
+                key={notification.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  markNotificationRead(notification.id);
+                }}
+                className={clsx(
+                  'w-full flex items-start gap-2 px-3 py-2 text-left transition-colors border-b',
+                  theme === 'dark' ? 'border-dark-border' : 'border-gray-50',
+                  !notification.read && (theme === 'dark' ? 'bg-dark-card/50' : 'bg-blue-50/50'),
+                  theme === 'dark' 
+                    ? 'hover:bg-dark-card' 
+                    : 'hover:bg-gray-50'
+                )}
+              >
+                <div className="mt-0.5 flex-shrink-0">
+                  {getNotificationIcon(notification.type)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={clsx(
+                    'text-xs leading-tight',
+                    theme === 'dark' ? 'text-white' : 'text-gray-900',
+                    !notification.read && 'font-medium'
+                  )}>
+                    {notification.title}
+                  </p>
+                  <p className={clsx(
+                    'text-[10px] mt-0.5 line-clamp-1',
+                    theme === 'dark' ? 'text-dark-muted' : 'text-gray-500'
+                  )}>
+                    {notification.message}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <span className={clsx(
+                    'text-[9px]',
+                    theme === 'dark' ? 'text-dark-muted' : 'text-gray-400'
+                  )}>
+                    {formatTime(notification.timestamp)}
+                  </span>
+                  {!notification.read && (
+                    <div className="w-1.5 h-1.5 rounded-full bg-loss" />
+                  )}
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Footer - View All */}
+      {notifications.length > 5 && (
+        <div className={clsx(
+          'px-3 py-2 border-t text-center',
+          theme === 'dark' ? 'border-dark-border' : 'border-gray-100'
+        )}>
+          <button className={clsx(
+            'text-[10px] font-medium',
+            theme === 'dark' ? 'text-dark-muted hover:text-white' : 'text-gray-400 hover:text-gray-900'
+          )}>
+            View all {notifications.length} notifications
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
-

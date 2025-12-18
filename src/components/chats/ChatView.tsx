@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useStore } from '@/store/useStore';
 import { MessageBubble } from './MessageBubble';
 import { SignalDrawer } from './SignalDrawer';
@@ -14,11 +15,26 @@ interface ChatViewProps {
 export function ChatView({ providerId }: ChatViewProps) {
   const { getMessagesByProvider, getSignalByMessageId, getTradeBySignalId, theme } = useStore();
   const messages = getMessagesByProvider(providerId);
+  const searchParams = useSearchParams();
+  const highlightedMessageId = searchParams.get('messageId');
+  const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
   
   const [selectedSignal, setSelectedSignal] = useState<{
     signal: ParsedSignal;
     trade?: Trade;
   } | null>(null);
+
+  // Scroll to highlighted message
+  useEffect(() => {
+    if (highlightedMessageId && messageRefs.current[highlightedMessageId]) {
+      setTimeout(() => {
+        messageRefs.current[highlightedMessageId]?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 100);
+    }
+  }, [highlightedMessageId]);
 
   const handleMessageClick = (messageId: string) => {
     const signal = getSignalByMessageId(messageId);
@@ -51,8 +67,8 @@ export function ChatView({ providerId }: ChatViewProps) {
       return 'Yesterday';
     }
     return date.toLocaleDateString('en-IN', { 
-      weekday: 'long', 
-      month: 'long', 
+      weekday: 'short', 
+      month: 'short', 
       day: 'numeric' 
     });
   };
@@ -60,23 +76,23 @@ export function ChatView({ providerId }: ChatViewProps) {
   if (messages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-        <p className={theme === 'dark' ? 'text-dark-muted' : 'text-light-muted'}>No messages yet</p>
+        <p className={theme === 'dark' ? 'text-dark-muted' : 'text-gray-500'}>No messages yet</p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="flex flex-col-reverse p-4 space-y-reverse space-y-3">
+      <div className="flex flex-col-reverse p-4 space-y-reverse space-y-2">
         {Object.entries(messagesByDate)
           .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime())
           .map(([date, dateMessages]) => (
-            <div key={date} className="space-y-3">
+            <div key={date} className="space-y-2">
               {/* Date header */}
               <div className="flex justify-center py-2">
                 <span className={clsx(
-                  "px-3 py-1 rounded-full text-xs",
-                  theme === 'dark' ? 'bg-dark-card text-dark-muted' : 'bg-light-card text-light-muted'
+                  "px-3 py-1 text-[10px] font-medium uppercase tracking-wide",
+                  theme === 'dark' ? 'bg-dark-card text-dark-muted' : 'bg-gray-100 text-gray-500'
                 )}>
                   {formatDateHeader(date)}
                 </span>
@@ -86,11 +102,16 @@ export function ChatView({ providerId }: ChatViewProps) {
               {dateMessages
                 .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
                 .map((message) => (
-                  <MessageBubble
+                  <div 
                     key={message.id}
-                    message={message}
-                    onSignalClick={() => handleMessageClick(message.id)}
-                  />
+                    ref={(el) => { messageRefs.current[message.id] = el; }}
+                  >
+                    <MessageBubble
+                      message={message}
+                      onSignalClick={() => handleMessageClick(message.id)}
+                      isHighlighted={message.id === highlightedMessageId}
+                    />
+                  </div>
                 ))}
             </div>
           ))}
