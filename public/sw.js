@@ -1,7 +1,18 @@
-// Service Worker Placeholder for AutoTrade PWA
-const CACHE_NAME = 'autotrade-v1';
-const urlsToCache = [
+// Service Worker for AutoTrade PWA
+const CACHE_NAME = 'autotrade-v2';
+const STATIC_CACHE = 'autotrade-static-v2';
+
+// Static assets to cache immediately
+const STATIC_ASSETS = [
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/manifest.json',
+];
+
+// Pages to cache on demand
+const DYNAMIC_PAGES = [
   '/',
+  '/dashboard',
   '/automations',
   '/signals',
   '/chats',
@@ -9,48 +20,108 @@ const urlsToCache = [
   '/settings',
 ];
 
-// Install event
+// Install event - cache static assets
 self.addEventListener('install', (event) => {
+  console.log('[SW] Installing...');
   event.waitUntil(
-    caches.open(CACHE_NAME)
+    caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        console.log('[SW] Caching static assets');
+        return cache.addAll(STATIC_ASSETS);
       })
+      .then(() => self.skipWaiting())
       .catch((error) => {
-        console.log('Cache open failed:', error);
-      })
-  );
-  self.skipWaiting();
-});
-
-// Fetch event
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
+        console.error('[SW] Install failed:', error);
       })
   );
 });
 
-// Activate event
+// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
+  console.log('[SW] Activating...');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    caches.keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames
+            .filter((name) => name !== CACHE_NAME && name !== STATIC_CACHE)
+            .map((name) => {
+              console.log('[SW] Deleting old cache:', name);
+              return caches.delete(name);
+            })
+        );
+      })
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
+// Fetch event - network first, fallback to cache
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests
+  if (request.method !== 'GET') return;
+
+  // Skip external requests
+  if (url.origin !== location.origin) return;
+
+  // For navigation requests (HTML pages)
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Clone and cache the response
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache
+          return caches.match(request).then((cachedResponse) => {
+            return cachedResponse || caches.match('/');
+          });
+        })
+    );
+    return;
+  }
+
+  // For static assets
+  if (request.destination === 'image' || request.destination === 'script' || request.destination === 'style') {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        return fetch(request).then((response) => {
+          const responseClone = response.clone();
+          caches.open(STATIC_CACHE).then((cache) => {
+            cache.put(request, responseClone);
+          });
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
+  // Default: network first
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        return response;
+      })
+      .catch(() => {
+        return caches.match(request);
+      })
+  );
+});
+
+// Handle messages from the main thread
+self.addEventListener('message', (event) => {
+  if (event.data === 'skipWaiting') {
+    self.skipWaiting();
+  }
+});
