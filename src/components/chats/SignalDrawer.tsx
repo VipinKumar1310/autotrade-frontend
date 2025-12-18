@@ -168,7 +168,7 @@ export function SignalDrawer({ isOpen, onClose, signal, trade }: SignalDrawerPro
                     <div className="bg-dark-card border border-dark-border rounded-lg p-3">
                       <p className="text-xs text-dark-muted mb-1">Exit Price</p>
                       <p className="text-sm font-medium text-white tabular-nums">
-                        ₹{trade.exit_price.toLocaleString()}
+                        {trade.exit_price ? `₹${trade.exit_price.toLocaleString()}` : '-'}
                       </p>
                     </div>
                     <div className="bg-dark-card border border-dark-border rounded-lg p-3">
