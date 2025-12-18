@@ -1,0 +1,23 @@
+{
+  "id": "usr_001",
+  "email": "trader@autotrade.io",
+  "phone": "+91 98765 43210",
+  "name": "Rahul Sharma",
+  "avatar": null,
+  "created_at": "2024-01-15T09:30:00Z",
+  "subscription": {
+    "plan": "professional",
+    "status": "active",
+    "expires_at": "2025-01-15T09:30:00Z"
+  },
+  "preferences": {
+    "theme": "dark",
+    "notifications": {
+      "signals": true,
+      "trades": true,
+      "errors": true
+    },
+    "default_execution_mode": "manual"
+  }
+}
+

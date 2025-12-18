@@ -1,0 +1,112 @@
+[
+  {
+    "id": "notif_001",
+    "type": "signal_detected",
+    "title": "New Signal Detected",
+    "message": "BUY NIFTY 21500 CE @ 185-190 from Nifty Options Pro",
+    "timestamp": "2024-12-18T09:45:00Z",
+    "read": false,
+    "automation_id": "auto_001",
+    "signal_id": "sig_001",
+    "action_required": false
+  },
+  {
+    "id": "notif_002",
+    "type": "trade_executed",
+    "title": "Trade Executed",
+    "message": "Bought 50 NIFTY 21500 CE @ ₹187.50",
+    "timestamp": "2024-12-18T09:45:05Z",
+    "read": false,
+    "automation_id": "auto_001",
+    "trade_id": "trd_001",
+    "action_required": false
+  },
+  {
+    "id": "notif_003",
+    "type": "trade_closed",
+    "title": "Trade Closed - Profit",
+    "message": "NIFTY 21500 CE closed with +₹1,825 profit (Target 1 hit)",
+    "timestamp": "2024-12-18T10:20:00Z",
+    "read": false,
+    "automation_id": "auto_001",
+    "trade_id": "trd_001",
+    "action_required": false
+  },
+  {
+    "id": "notif_004",
+    "type": "signal_skipped",
+    "title": "Signal Skipped",
+    "message": "BANKNIFTY 48000 PE skipped: Message was edited within 5 minutes",
+    "timestamp": "2024-12-18T11:35:00Z",
+    "read": true,
+    "automation_id": "auto_001",
+    "signal_id": "sig_002",
+    "action_required": false
+  },
+  {
+    "id": "notif_005",
+    "type": "manual_required",
+    "title": "Manual Execution Required",
+    "message": "BUY TATAMOTORS @ 780-785 - Awaiting your confirmation",
+    "timestamp": "2024-12-17T10:00:05Z",
+    "read": true,
+    "automation_id": "auto_002",
+    "signal_id": "sig_004",
+    "action_required": true
+  },
+  {
+    "id": "notif_006",
+    "type": "error",
+    "title": "Automation Error",
+    "message": "Error Test Auto: Broker session expired. Please reconnect.",
+    "timestamp": "2024-12-10T10:00:00Z",
+    "read": true,
+    "automation_id": "auto_004",
+    "action_required": true
+  },
+  {
+    "id": "notif_007",
+    "type": "message_edited",
+    "title": "Message Edited After Signal",
+    "message": "Original signal message was edited: BANKNIFTY 48000 PE",
+    "timestamp": "2024-12-18T11:35:00Z",
+    "read": true,
+    "automation_id": "auto_001",
+    "signal_id": "sig_002",
+    "action_required": false
+  },
+  {
+    "id": "notif_008",
+    "type": "message_deleted",
+    "title": "Message Deleted After Trade",
+    "message": "Signal message deleted after trade execution: NIFTY 21400 PE",
+    "timestamp": "2024-12-17T14:45:00Z",
+    "read": true,
+    "automation_id": "auto_001",
+    "signal_id": "sig_003",
+    "trade_id": "trd_002",
+    "action_required": false
+  },
+  {
+    "id": "notif_009",
+    "type": "trade_closed",
+    "title": "Trade Closed - Loss",
+    "message": "NIFTY 21300 CE closed with -₹1,750 loss (Stop loss hit)",
+    "timestamp": "2024-12-16T10:45:00Z",
+    "read": true,
+    "automation_id": "auto_001",
+    "trade_id": "trd_004",
+    "action_required": false
+  },
+  {
+    "id": "notif_010",
+    "type": "automation_paused",
+    "title": "Automation Paused",
+    "message": "Scalper One-Click has been paused",
+    "timestamp": "2024-12-16T12:00:00Z",
+    "read": true,
+    "automation_id": "auto_003",
+    "action_required": false
+  }
+]
+

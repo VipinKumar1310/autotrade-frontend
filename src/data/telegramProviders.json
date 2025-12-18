@@ -1,0 +1,63 @@
+[
+  {
+    "id": "tg_001",
+    "name": "Nifty Options Pro",
+    "username": "@niftyoptionspro",
+    "description": "Premium Nifty & Bank Nifty options signals",
+    "subscribers": 12500,
+    "connected": true,
+    "connected_at": "2024-06-10T14:30:00Z",
+    "signal_count": 847,
+    "accuracy": 72.5,
+    "avatar_color": "#3b82f6"
+  },
+  {
+    "id": "tg_002",
+    "name": "Swing Trade Alerts",
+    "username": "@swingtradealerts",
+    "description": "High probability swing trades for equities",
+    "subscribers": 8200,
+    "connected": true,
+    "connected_at": "2024-07-22T10:15:00Z",
+    "signal_count": 234,
+    "accuracy": 68.3,
+    "avatar_color": "#8b5cf6"
+  },
+  {
+    "id": "tg_003",
+    "name": "Intraday Scalper",
+    "username": "@intradayscalper",
+    "description": "Quick scalping setups for day traders",
+    "subscribers": 5600,
+    "connected": true,
+    "connected_at": "2024-08-05T08:45:00Z",
+    "signal_count": 1203,
+    "accuracy": 65.8,
+    "avatar_color": "#06b6d4"
+  },
+  {
+    "id": "tg_004",
+    "name": "Crypto Signals India",
+    "username": "@cryptosignalsin",
+    "description": "Crypto trading signals for Indian timezone",
+    "subscribers": 15800,
+    "connected": false,
+    "connected_at": null,
+    "signal_count": 0,
+    "accuracy": null,
+    "avatar_color": "#f59e0b"
+  },
+  {
+    "id": "tg_005",
+    "name": "Bank Nifty Expert",
+    "username": "@bankniftyexpert",
+    "description": "Dedicated Bank Nifty weekly expiry calls",
+    "subscribers": 9400,
+    "connected": false,
+    "connected_at": null,
+    "signal_count": 0,
+    "accuracy": null,
+    "avatar_color": "#10b981"
+  }
+]
+

@@ -1,0 +1,123 @@
+[
+  {
+    "id": "msg_001",
+    "provider_id": "tg_001",
+    "text": "🟢 BUY NIFTY 21500 CE @ 185-190\nSL: 160\nTarget 1: 220\nTarget 2: 250\nTarget 3: 280",
+    "timestamp": "2024-12-18T09:45:00Z",
+    "edited_at": null,
+    "deleted_at": null,
+    "parsed_signal_id": "sig_001",
+    "tags": ["SIGNAL_DETECTED", "PARSED", "TRADE_EXECUTED"]
+  },
+  {
+    "id": "msg_002",
+    "provider_id": "tg_001",
+    "text": "Target 1 achieved ✅\nTrail SL to 200",
+    "timestamp": "2024-12-18T10:15:00Z",
+    "edited_at": null,
+    "deleted_at": null,
+    "parsed_signal_id": null,
+    "tags": []
+  },
+  {
+    "id": "msg_003",
+    "provider_id": "tg_001",
+    "text": "🔴 SELL BANKNIFTY 48000 PE @ 320-330\nSL: 280\nTarget: 400",
+    "timestamp": "2024-12-18T11:30:00Z",
+    "edited_at": "2024-12-18T11:35:00Z",
+    "deleted_at": null,
+    "parsed_signal_id": "sig_002",
+    "tags": ["SIGNAL_DETECTED", "PARSED", "TRADE_SKIPPED", "MESSAGE_EDITED"]
+  },
+  {
+    "id": "msg_004",
+    "provider_id": "tg_001",
+    "text": "Market looking weak. Stay cautious.",
+    "timestamp": "2024-12-18T12:00:00Z",
+    "edited_at": null,
+    "deleted_at": null,
+    "parsed_signal_id": null,
+    "tags": []
+  },
+  {
+    "id": "msg_005",
+    "provider_id": "tg_001",
+    "text": "🟢 BUY NIFTY 21400 PE @ 95-100\nSL: 75\nTarget: 140",
+    "timestamp": "2024-12-17T14:20:00Z",
+    "edited_at": null,
+    "deleted_at": "2024-12-17T14:45:00Z",
+    "parsed_signal_id": "sig_003",
+    "tags": ["SIGNAL_DETECTED", "PARSED", "TRADE_EXECUTED", "MESSAGE_DELETED"]
+  },
+  {
+    "id": "msg_006",
+    "provider_id": "tg_001",
+    "text": "Exit all positions. Booking profits.",
+    "timestamp": "2024-12-17T15:15:00Z",
+    "edited_at": null,
+    "deleted_at": null,
+    "parsed_signal_id": null,
+    "tags": []
+  },
+  {
+    "id": "msg_007",
+    "provider_id": "tg_002",
+    "text": "SWING TRADE ALERT 📊\n\nBUY TATA MOTORS @ 780-785\nSL: 750\nTarget 1: 820\nTarget 2: 860\n\nHolding period: 5-7 days",
+    "timestamp": "2024-12-17T10:00:00Z",
+    "edited_at": null,
+    "deleted_at": null,
+    "parsed_signal_id": "sig_004",
+    "tags": ["SIGNAL_DETECTED", "PARSED"]
+  },
+  {
+    "id": "msg_008",
+    "provider_id": "tg_002",
+    "text": "TATA MOTORS Target 1 HIT! 🎯\nBook 50% profits, trail SL to 795.",
+    "timestamp": "2024-12-18T14:30:00Z",
+    "edited_at": null,
+    "deleted_at": null,
+    "parsed_signal_id": null,
+    "tags": []
+  },
+  {
+    "id": "msg_009",
+    "provider_id": "tg_003",
+    "text": "SCALP BUY NIFTY FUT 21480\nSL 21460\nTGT 21520\nRisk: 20 pts\nReward: 40 pts",
+    "timestamp": "2024-12-16T10:05:00Z",
+    "edited_at": null,
+    "deleted_at": null,
+    "parsed_signal_id": "sig_005",
+    "tags": ["SIGNAL_DETECTED", "PARSED", "TRADE_EXECUTED"]
+  },
+  {
+    "id": "msg_010",
+    "provider_id": "tg_003",
+    "text": "Target hit! +40 pts ✅",
+    "timestamp": "2024-12-16T10:22:00Z",
+    "edited_at": null,
+    "deleted_at": null,
+    "parsed_signal_id": null,
+    "tags": []
+  },
+  {
+    "id": "msg_011",
+    "provider_id": "tg_003",
+    "text": "SCALP SELL BANKNIFTY FUT 47850\nSL 47900\nTGT 47750",
+    "timestamp": "2024-12-16T11:15:00Z",
+    "edited_at": "2024-12-16T11:18:00Z",
+    "deleted_at": null,
+    "parsed_signal_id": "sig_006",
+    "tags": ["SIGNAL_DETECTED", "PARSED", "TRADE_SKIPPED", "MESSAGE_EDITED"]
+  },
+  {
+    "id": "msg_012",
+    "provider_id": "tg_001",
+    "text": "Good morning traders! 🌅\n\nMarket outlook for today:\n- Nifty: Bullish above 21450\n- Bank Nifty: Range bound 47800-48200\n\nWait for clear setups.",
+    "timestamp": "2024-12-18T09:15:00Z",
+    "edited_at": null,
+    "deleted_at": null,
+    "parsed_signal_id": null,
+    "tags": []
+  }
+]
+

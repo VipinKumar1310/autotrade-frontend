@@ -1,0 +1,128 @@
+[
+  {
+    "id": "auto_001",
+    "name": "Nifty Options Auto",
+    "telegram_provider_id": "tg_001",
+    "broker_id": "brk_001",
+    "execution_mode": "auto",
+    "status": "running",
+    "created_at": "2024-06-15T10:30:00Z",
+    "last_signal_at": "2024-12-18T09:45:00Z",
+    "trades_today": 3,
+    "total_trades": 156,
+    "rules": {
+      "quantity": 50,
+      "max_quantity": 100,
+      "stop_loss_percent": 20,
+      "max_trades_per_day": 5,
+      "allowed_instruments": ["NIFTY", "BANKNIFTY"],
+      "allowed_directions": ["BUY", "SELL"]
+    },
+    "options": {
+      "ai_validation": true,
+      "delay_execution_seconds": 0,
+      "require_confirmation": false
+    },
+    "stats": {
+      "win_rate": 68.5,
+      "total_pnl": 48250.00,
+      "avg_profit": 850.00,
+      "avg_loss": -420.00
+    }
+  },
+  {
+    "id": "auto_002",
+    "name": "Swing Manual",
+    "telegram_provider_id": "tg_002",
+    "broker_id": "brk_001",
+    "execution_mode": "manual",
+    "status": "running",
+    "created_at": "2024-07-25T14:00:00Z",
+    "last_signal_at": "2024-12-17T15:30:00Z",
+    "trades_today": 0,
+    "total_trades": 42,
+    "rules": {
+      "quantity": 100,
+      "max_quantity": 200,
+      "stop_loss_percent": 5,
+      "max_trades_per_day": 3,
+      "allowed_instruments": ["ALL"],
+      "allowed_directions": ["BUY", "SELL"]
+    },
+    "options": {
+      "ai_validation": false,
+      "delay_execution_seconds": 0,
+      "require_confirmation": true
+    },
+    "stats": {
+      "win_rate": 71.4,
+      "total_pnl": 28400.00,
+      "avg_profit": 1250.00,
+      "avg_loss": -680.00
+    }
+  },
+  {
+    "id": "auto_003",
+    "name": "Scalper One-Click",
+    "telegram_provider_id": "tg_003",
+    "broker_id": "brk_001",
+    "execution_mode": "one-click",
+    "status": "paused",
+    "created_at": "2024-08-10T09:15:00Z",
+    "last_signal_at": "2024-12-16T11:20:00Z",
+    "trades_today": 0,
+    "total_trades": 89,
+    "rules": {
+      "quantity": 25,
+      "max_quantity": 50,
+      "stop_loss_percent": 10,
+      "max_trades_per_day": 10,
+      "allowed_instruments": ["NIFTY", "BANKNIFTY"],
+      "allowed_directions": ["BUY", "SELL"]
+    },
+    "options": {
+      "ai_validation": true,
+      "delay_execution_seconds": 5,
+      "require_confirmation": false
+    },
+    "stats": {
+      "win_rate": 62.9,
+      "total_pnl": 12800.00,
+      "avg_profit": 320.00,
+      "avg_loss": -185.00
+    }
+  },
+  {
+    "id": "auto_004",
+    "name": "Error Test Auto",
+    "telegram_provider_id": "tg_001",
+    "broker_id": "brk_001",
+    "execution_mode": "auto",
+    "status": "error",
+    "created_at": "2024-09-01T16:45:00Z",
+    "last_signal_at": "2024-12-10T10:00:00Z",
+    "trades_today": 0,
+    "total_trades": 12,
+    "error_message": "Broker session expired. Please reconnect.",
+    "rules": {
+      "quantity": 50,
+      "max_quantity": 100,
+      "stop_loss_percent": 15,
+      "max_trades_per_day": 3,
+      "allowed_instruments": ["NIFTY"],
+      "allowed_directions": ["BUY"]
+    },
+    "options": {
+      "ai_validation": false,
+      "delay_execution_seconds": 0,
+      "require_confirmation": false
+    },
+    "stats": {
+      "win_rate": 58.3,
+      "total_pnl": -2400.00,
+      "avg_profit": 450.00,
+      "avg_loss": -520.00
+    }
+  }
+]
+

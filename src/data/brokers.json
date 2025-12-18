@@ -1,0 +1,55 @@
+[
+  {
+    "id": "brk_001",
+    "name": "Zerodha Kite",
+    "code": "KITE",
+    "connected": true,
+    "connected_at": "2024-06-01T09:00:00Z",
+    "account_id": "ZD1234",
+    "margin_available": 245680.50,
+    "margin_used": 54320.00,
+    "status": "active",
+    "supports": ["equity", "options", "futures"],
+    "logo_color": "#387ed1"
+  },
+  {
+    "id": "brk_002",
+    "name": "Angel One",
+    "code": "ANGEL",
+    "connected": false,
+    "connected_at": null,
+    "account_id": null,
+    "margin_available": null,
+    "margin_used": null,
+    "status": "disconnected",
+    "supports": ["equity", "options", "futures", "commodity"],
+    "logo_color": "#e31937"
+  },
+  {
+    "id": "brk_003",
+    "name": "Upstox",
+    "code": "UPSTOX",
+    "connected": false,
+    "connected_at": null,
+    "account_id": null,
+    "margin_available": null,
+    "margin_used": null,
+    "status": "disconnected",
+    "supports": ["equity", "options", "futures"],
+    "logo_color": "#6a1b9a"
+  },
+  {
+    "id": "brk_004",
+    "name": "Fyers",
+    "code": "FYERS",
+    "connected": false,
+    "connected_at": null,
+    "account_id": null,
+    "margin_available": null,
+    "margin_used": null,
+    "status": "disconnected",
+    "supports": ["equity", "options", "futures"],
+    "logo_color": "#2196f3"
+  }
+]
+
