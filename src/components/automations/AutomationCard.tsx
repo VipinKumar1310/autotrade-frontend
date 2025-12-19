@@ -9,6 +9,7 @@ import {
   Zap,
   MousePointer,
   Bot,
+  TrendingUp,
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import type {
@@ -156,19 +157,35 @@ export function AutomationCard({
             {automation.name}
           </h3>
           <div className="flex items-center gap-1.5 mt-1">
-            <TelegramIcon
-              size={14}
-              className="flex-shrink-0"
-              id={`tg-${automation.id}`}
-            />
-            <p
-              className={clsx(
-                "text-[11px] truncate",
-                theme === "dark" ? "text-dark-muted" : "text-gray-500"
-              )}
-            >
-              {provider?.name || "Unknown Provider"}
-            </p>
+            {automation.signal_source === 'market_strategy' ? (
+              <>
+                <TrendingUp size={14} className="flex-shrink-0" />
+                <p
+                  className={clsx(
+                    "text-[11px] truncate",
+                    theme === "dark" ? "text-dark-muted" : "text-gray-500"
+                  )}
+                >
+                  Market Strategy
+                </p>
+              </>
+            ) : (
+              <>
+                <TelegramIcon
+                  size={14}
+                  className="flex-shrink-0"
+                  id={`tg-${automation.id}`}
+                />
+                <p
+                  className={clsx(
+                    "text-[11px] truncate",
+                    theme === "dark" ? "text-dark-muted" : "text-gray-500"
+                  )}
+                >
+                  {provider?.name || "Unknown Provider"}
+                </p>
+              </>
+            )}
           </div>
         </div>
         

@@ -13,10 +13,12 @@ import {
   Check,
   Play,
   Pause,
-  Trash2
+  Trash2,
+  TrendingUp,
+  Plus
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
-import type { Automation, ExecutionMode } from '@/types';
+import type { Automation, ExecutionMode, SignalSource, MarketStrategyRule } from '@/types';
 import clsx from 'clsx';
 
 // Custom Telegram Icon
@@ -62,11 +64,18 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
     theme 
   } = useStore();
   
-  const connectedProviders = telegramProviders.filter((p) => p.connected);
-  const connectedBrokers = brokers.filter((b) => b.connected);
+  const connectedProviders = useMemo(() => 
+    telegramProviders.filter((p) => p.connected), 
+    [telegramProviders]
+  );
+  const connectedBrokers = useMemo(() => 
+    brokers.filter((b) => b.connected), 
+    [brokers]
+  );
 
   const [formData, setFormData] = useState({
     name: '',
+    signal_source: 'telegram' as SignalSource,
     telegram_provider_id: '',
     broker_id: '',
     execution_mode: 'manual' as ExecutionMode,
@@ -75,6 +84,12 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
     max_trades_per_day: 5,
     ai_validation: false,
     delay_execution_seconds: 0,
+    market_strategy_rules: {
+      rules: [] as MarketStrategyRule[],
+      instruments: ['NIFTY', 'BANKNIFTY'],
+      direction: 'BOTH' as 'BUY' | 'SELL' | 'BOTH',
+      websocket_enabled: true,
+    },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,7 +138,8 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
     if (isOpen && automation) {
       setFormData({
         name: automation.name,
-        telegram_provider_id: automation.telegram_provider_id,
+        signal_source: automation.signal_source || 'telegram',
+        telegram_provider_id: automation.telegram_provider_id || '',
         broker_id: automation.broker_id,
         execution_mode: automation.execution_mode,
         quantity: automation.rules.quantity,
@@ -131,6 +147,12 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
         max_trades_per_day: automation.rules.max_trades_per_day,
         ai_validation: automation.options.ai_validation,
         delay_execution_seconds: automation.options.delay_execution_seconds,
+        market_strategy_rules: automation.market_strategy_rules || {
+          rules: [],
+          instruments: ['NIFTY', 'BANKNIFTY'],
+          direction: 'BOTH',
+          websocket_enabled: true,
+        },
       });
       setChannelSearch('');
     }
@@ -146,7 +168,8 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
 
     updateAutomation(automation.id, {
       name: formData.name || automation.name,
-      telegram_provider_id: formData.telegram_provider_id,
+      signal_source: formData.signal_source,
+      telegram_provider_id: formData.signal_source === 'telegram' ? formData.telegram_provider_id : undefined,
       broker_id: formData.broker_id,
       execution_mode: formData.execution_mode,
       rules: {
@@ -154,9 +177,14 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
         max_quantity: formData.quantity * 2,
         stop_loss_percent: formData.stop_loss_percent,
         max_trades_per_day: formData.max_trades_per_day,
-        allowed_instruments: ['ALL'],
-        allowed_directions: ['BUY', 'SELL'],
+        allowed_instruments: formData.signal_source === 'market_strategy' 
+          ? formData.market_strategy_rules.instruments 
+          : ['ALL'],
+        allowed_directions: formData.signal_source === 'market_strategy' && formData.market_strategy_rules.direction !== 'BOTH'
+          ? [formData.market_strategy_rules.direction]
+          : ['BUY', 'SELL'],
       },
+      market_strategy_rules: formData.signal_source === 'market_strategy' ? formData.market_strategy_rules : undefined,
       options: {
         ai_validation: formData.ai_validation,
         delay_execution_seconds: formData.delay_execution_seconds,
@@ -184,6 +212,45 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
 
   const selectedChannel = connectedProviders.find(p => p.id === formData.telegram_provider_id);
   const selectedBroker = connectedBrokers.find(b => b.id === formData.broker_id);
+
+  const addMarketStrategyRule = () => {
+    const newRule: MarketStrategyRule = {
+      id: `rule_${Date.now()}`,
+      type: 'price',
+      condition: 'above',
+      value: 0,
+      enabled: true,
+    };
+    setFormData({
+      ...formData,
+      market_strategy_rules: {
+        ...formData.market_strategy_rules,
+        rules: [...formData.market_strategy_rules.rules, newRule],
+      },
+    });
+  };
+
+  const removeMarketStrategyRule = (ruleId: string) => {
+    setFormData({
+      ...formData,
+      market_strategy_rules: {
+        ...formData.market_strategy_rules,
+        rules: formData.market_strategy_rules.rules.filter(r => r.id !== ruleId),
+      },
+    });
+  };
+
+  const updateMarketStrategyRule = (ruleId: string, updates: Partial<MarketStrategyRule>) => {
+    setFormData({
+      ...formData,
+      market_strategy_rules: {
+        ...formData.market_strategy_rules,
+        rules: formData.market_strategy_rules.rules.map(r => 
+          r.id === ruleId ? { ...r, ...updates } : r
+        ),
+      },
+    });
+  };
 
   if (!isOpen || !automation) return null;
 
@@ -296,11 +363,51 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
               />
             </div>
 
-            {/* Row 2: Telegram Channel Dropdown with Search */}
-            <div ref={channelDropdownRef} className="relative">
+            {/* Row 2: Signal Source Selector */}
+            <div>
               <label className={clsx("block text-[11px] uppercase tracking-wide mb-1.5", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
-                Telegram Channel
+                Signal Source
               </label>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, signal_source: 'telegram' })}
+                  className={clsx(
+                    'flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors border',
+                    formData.signal_source === 'telegram'
+                      ? theme === 'dark' ? 'bg-white text-dark-bg border-white' : 'bg-gray-900 text-white border-gray-900'
+                      : theme === 'dark' 
+                        ? 'bg-dark-card text-dark-muted border-dark-border hover:text-white hover:border-dark-muted' 
+                        : 'bg-white text-gray-500 border-gray-200 hover:text-gray-900 hover:border-gray-300'
+                  )}
+                >
+                  <TelegramIcon size={14} />
+                  <span>Telegram</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, signal_source: 'market_strategy' })}
+                  className={clsx(
+                    'flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors border',
+                    formData.signal_source === 'market_strategy'
+                      ? theme === 'dark' ? 'bg-white text-dark-bg border-white' : 'bg-gray-900 text-white border-gray-900'
+                      : theme === 'dark' 
+                        ? 'bg-dark-card text-dark-muted border-dark-border hover:text-white hover:border-dark-muted' 
+                        : 'bg-white text-gray-500 border-gray-200 hover:text-gray-900 hover:border-gray-300'
+                  )}
+                >
+                  <TrendingUp size={14} />
+                  <span>Market Strategy</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Row 3: Telegram Channel Dropdown with Search (conditional) */}
+            {formData.signal_source === 'telegram' && (
+              <div ref={channelDropdownRef} className="relative">
+                <label className={clsx("block text-[11px] uppercase tracking-wide mb-1.5", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
+                  Telegram Channel
+                </label>
               <button
                 type="button"
                 onClick={() => {
@@ -398,9 +505,202 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
                   </div>
                 </div>
               )}
-            </div>
+              </div>
+            )}
 
-            {/* Row 3: Broker Dropdown */}
+            {/* Row 3: Market Strategy Rules (conditional) */}
+            {formData.signal_source === 'market_strategy' && (
+              <div className="space-y-3">
+                <div>
+                  <label className={clsx("block text-[11px] uppercase tracking-wide mb-1.5", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
+                    Trading Rules
+                  </label>
+                  <div className="space-y-2">
+                    {formData.market_strategy_rules.rules.map((rule) => (
+                      <div
+                        key={rule.id}
+                        className={clsx(
+                          "p-2 border space-y-2",
+                          theme === 'dark' ? 'bg-dark-card border-dark-border' : 'bg-gray-50 border-gray-200'
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={rule.enabled}
+                              onChange={(e) => updateMarketStrategyRule(rule.id, { enabled: e.target.checked })}
+                              className="w-3 h-3"
+                            />
+                            <select
+                              value={rule.type}
+                              onChange={(e) => updateMarketStrategyRule(rule.id, { type: e.target.value as MarketStrategyRule['type'] })}
+                              className={clsx(
+                                "text-xs px-2 py-1 border outline-none",
+                                theme === 'dark' ? 'bg-dark-bg border-dark-border text-white' : 'bg-white border-gray-200 text-gray-900'
+                              )}
+                            >
+                              <option value="price">Price</option>
+                              <option value="volume">Volume</option>
+                              <option value="rsi">RSI</option>
+                              <option value="macd">MACD</option>
+                              <option value="moving_average">Moving Average</option>
+                              <option value="time">Time</option>
+                            </select>
+                            <select
+                              value={rule.condition}
+                              onChange={(e) => updateMarketStrategyRule(rule.id, { condition: e.target.value as MarketStrategyRule['condition'] })}
+                              className={clsx(
+                                "text-xs px-2 py-1 border outline-none",
+                                theme === 'dark' ? 'bg-dark-bg border-dark-border text-white' : 'bg-white border-gray-200 text-gray-900'
+                              )}
+                            >
+                              <option value="above">Above</option>
+                              <option value="below">Below</option>
+                              <option value="crosses_above">Crosses Above</option>
+                              <option value="crosses_below">Crosses Below</option>
+                              <option value="equals">Equals</option>
+                            </select>
+                            <input
+                              type="number"
+                              value={rule.value}
+                              onChange={(e) => updateMarketStrategyRule(rule.id, { value: parseFloat(e.target.value) || 0 })}
+                              placeholder="Value"
+                              className={clsx(
+                                "w-20 text-xs px-2 py-1 border outline-none",
+                                theme === 'dark' ? 'bg-dark-bg border-dark-border text-white' : 'bg-white border-gray-200 text-gray-900'
+                              )}
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeMarketStrategyRule(rule.id)}
+                            className={clsx(
+                              "p-1 transition-colors",
+                              theme === 'dark' ? 'text-dark-muted hover:text-loss' : 'text-gray-400 hover:text-loss'
+                            )}
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                        {rule.type !== 'time' && (
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={rule.instrument || ''}
+                              onChange={(e) => updateMarketStrategyRule(rule.id, { instrument: e.target.value })}
+                              className={clsx(
+                                "text-xs px-2 py-1 border outline-none flex-1",
+                                theme === 'dark' ? 'bg-dark-bg border-dark-border text-white' : 'bg-white border-gray-200 text-gray-900'
+                              )}
+                            >
+                              <option value="">All Instruments</option>
+                              <option value="NIFTY">NIFTY</option>
+                              <option value="BANKNIFTY">BANKNIFTY</option>
+                              <option value="FINNIFTY">FINNIFTY</option>
+                            </select>
+                            <select
+                              value={rule.timeframe || '5m'}
+                              onChange={(e) => updateMarketStrategyRule(rule.id, { timeframe: e.target.value as MarketStrategyRule['timeframe'] })}
+                              className={clsx(
+                                "text-xs px-2 py-1 border outline-none",
+                                theme === 'dark' ? 'bg-dark-bg border-dark-border text-white' : 'bg-white border-gray-200 text-gray-900'
+                              )}
+                            >
+                              <option value="1m">1m</option>
+                              <option value="5m">5m</option>
+                              <option value="15m">15m</option>
+                              <option value="30m">30m</option>
+                              <option value="1h">1h</option>
+                              <option value="1d">1d</option>
+                            </select>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addMarketStrategyRule}
+                      className={clsx(
+                        "w-full flex items-center justify-center gap-2 py-2 text-xs border transition-colors",
+                        theme === 'dark' 
+                          ? 'border-dark-border text-dark-muted hover:border-dark-muted hover:text-white' 
+                          : 'border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-900'
+                      )}
+                    >
+                      <Plus size={12} />
+                      <span>Add Rule</span>
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className={clsx("block text-[11px] uppercase tracking-wide mb-1.5", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
+                    Instruments
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'SENSEX', 'ALL'].map((inst) => (
+                      <button
+                        key={inst}
+                        type="button"
+                        onClick={() => {
+                          const instruments = formData.market_strategy_rules.instruments.includes(inst)
+                            ? formData.market_strategy_rules.instruments.filter(i => i !== inst)
+                            : inst === 'ALL'
+                            ? ['ALL']
+                            : [...formData.market_strategy_rules.instruments.filter(i => i !== 'ALL'), inst];
+                          setFormData({
+                            ...formData,
+                            market_strategy_rules: {
+                              ...formData.market_strategy_rules,
+                              instruments,
+                            },
+                          });
+                        }}
+                        className={clsx(
+                          "px-2 py-1 text-xs border transition-colors",
+                          formData.market_strategy_rules.instruments.includes(inst)
+                            ? theme === 'dark' ? 'bg-white text-dark-bg border-white' : 'bg-gray-900 text-white border-gray-900'
+                            : theme === 'dark' ? 'bg-dark-card text-dark-muted border-dark-border' : 'bg-white text-gray-500 border-gray-200'
+                        )}
+                      >
+                        {inst}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className={clsx("block text-[11px] uppercase tracking-wide mb-1.5", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
+                    Direction
+                  </label>
+                  <div className="flex gap-1">
+                    {(['BUY', 'SELL', 'BOTH'] as const).map((dir) => (
+                      <button
+                        key={dir}
+                        type="button"
+                        onClick={() => setFormData({
+                          ...formData,
+                          market_strategy_rules: {
+                            ...formData.market_strategy_rules,
+                            direction: dir,
+                          },
+                        })}
+                        className={clsx(
+                          'flex-1 py-2 text-xs font-medium transition-colors border',
+                          formData.market_strategy_rules.direction === dir
+                            ? theme === 'dark' ? 'bg-white text-dark-bg border-white' : 'bg-gray-900 text-white border-gray-900'
+                            : theme === 'dark' 
+                              ? 'bg-dark-card text-dark-muted border-dark-border hover:text-white hover:border-dark-muted' 
+                              : 'bg-white text-gray-500 border-gray-200 hover:text-gray-900 hover:border-gray-300'
+                        )}
+                      >
+                        {dir}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Row 4: Broker Dropdown */}
             <div ref={brokerDropdownRef} className="relative">
               <label className={clsx("block text-[11px] uppercase tracking-wide mb-1.5", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
                 Broker / Exchange
@@ -467,7 +767,7 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
               )}
             </div>
 
-            {/* Row 4: Execution Mode (Horizontal) */}
+            {/* Row 5: Execution Mode (Horizontal) */}
             <div>
               <label className={clsx("block text-[11px] uppercase tracking-wide mb-1.5", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
                 Execution Mode
@@ -498,7 +798,7 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
               </div>
             </div>
 
-            {/* Row 5: Trade Rules (Compact Grid) */}
+            {/* Row 6: Trade Rules (Compact Grid) */}
             <div className="grid grid-cols-3 gap-2">
               <div>
                 <label className={clsx("block text-[10px] uppercase tracking-wide mb-1", theme === 'dark' ? 'text-dark-muted' : 'text-gray-500')}>
@@ -553,7 +853,7 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
               </div>
             </div>
 
-            {/* Row 6: Options (Horizontal) */}
+            {/* Row 7: Options (Horizontal) */}
             <div className="flex gap-2">
               {/* AI Validation Toggle */}
               <button
@@ -652,10 +952,10 @@ export function EditAutomationModal({ isOpen, onClose, automation }: EditAutomat
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isSubmitting || !formData.telegram_provider_id || !formData.broker_id}
+              disabled={isSubmitting || !formData.broker_id || (formData.signal_source === 'telegram' && !formData.telegram_provider_id) || (formData.signal_source === 'market_strategy' && formData.market_strategy_rules.rules.length === 0)}
               className={clsx(
                 'w-full py-2.5 text-sm font-semibold transition-all',
-                !isSubmitting && formData.telegram_provider_id && formData.broker_id
+                !isSubmitting && formData.broker_id && (formData.signal_source === 'telegram' ? formData.telegram_provider_id : formData.market_strategy_rules.rules.length > 0)
                   ? theme === 'dark' ? 'bg-white text-dark-bg hover:bg-white/90 active:scale-[0.98]' : 'bg-gray-900 text-white hover:bg-gray-800 active:scale-[0.98]'
                   : theme === 'dark' ? 'bg-dark-card text-dark-muted cursor-not-allowed' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
               )}

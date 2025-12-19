@@ -151,14 +151,8 @@ const getDateRange = (
 
 export default function DashboardPage() {
   const router = useRouter();
-  const {
-    isAuthenticated,
-    parsedSignals,
-    trades,
-    automations,
-    telegramProviders,
-    theme,
-  } = useStore();
+  const { parsedSignals, trades, automations, telegramProviders, theme } =
+    useStore();
 
   // Filter states
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("all");
@@ -185,12 +179,6 @@ export default function DashboardPage() {
     setExpandedCard(expandedCard === id ? null : id);
   };
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace("/");
-    }
-  }, [isAuthenticated, router]);
-
   // Computed filtered data
   const filteredData = useMemo(() => {
     const dateRange = getDateRange(timePeriod, customDateRange);
@@ -210,6 +198,7 @@ export default function DashboardPage() {
       const matchesChannel =
         selectedChannels.length === 0 ||
         (automation &&
+          automation.telegram_provider_id &&
           selectedChannels.includes(automation.telegram_provider_id));
 
       return inDateRange && matchesAutomation && matchesChannel;
@@ -229,6 +218,7 @@ export default function DashboardPage() {
       const matchesChannel =
         selectedChannels.length === 0 ||
         (automation &&
+          automation.telegram_provider_id &&
           selectedChannels.includes(automation.telegram_provider_id));
 
       return inDateRange && matchesAutomation && matchesChannel;
@@ -396,8 +386,6 @@ export default function DashboardPage() {
         };
     }
   };
-
-  if (!isAuthenticated) return null;
 
   return (
     <AppLayout>

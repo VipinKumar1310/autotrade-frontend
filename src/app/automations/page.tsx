@@ -67,7 +67,7 @@ export default function AutomationsPage() {
           </div>
         ) : (
           automations.map((automation) => {
-            const provider = getProviderById(automation.telegram_provider_id);
+            const provider = automation.telegram_provider_id ? getProviderById(automation.telegram_provider_id) : undefined;
             const broker = getBrokerById(automation.broker_id);
             
             return (

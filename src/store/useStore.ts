@@ -66,8 +66,8 @@ export const useStore = create<AppState>()(
     persist(
         (set, get) => ({
             // Auth state
-            isAuthenticated: false,
-            user: null,
+            isAuthenticated: true,
+            user: userData as User,
 
             login: (email: string) => {
                 const user = { ...userData, email } as User;
@@ -112,6 +112,7 @@ export const useStore = create<AppState>()(
             createAutomation: (automation) => {
                 const newAutomation: Automation = {
                     ...automation,
+                    signal_source: automation.signal_source || 'telegram',
                     id: `auto_${Date.now()}`,
                     created_at: new Date().toISOString(),
                     stats: {

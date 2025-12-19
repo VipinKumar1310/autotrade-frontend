@@ -73,6 +73,7 @@ export interface Broker {
 // Automation Types
 export type ExecutionMode = 'manual' | 'one-click' | 'auto';
 export type AutomationStatus = 'running' | 'paused' | 'error';
+export type SignalSource = 'telegram' | 'market_strategy';
 
 export interface AutomationRules {
   quantity: number;
@@ -81,6 +82,23 @@ export interface AutomationRules {
   max_trades_per_day: number;
   allowed_instruments: string[];
   allowed_directions: ('BUY' | 'SELL')[];
+}
+
+export interface MarketStrategyRule {
+  id: string;
+  type: 'price' | 'volume' | 'rsi' | 'macd' | 'moving_average' | 'time';
+  condition: 'above' | 'below' | 'crosses_above' | 'crosses_below' | 'equals';
+  value: number;
+  instrument?: string;
+  timeframe?: '1m' | '5m' | '15m' | '30m' | '1h' | '1d';
+  enabled: boolean;
+}
+
+export interface MarketStrategyRules {
+  rules: MarketStrategyRule[];
+  instruments: string[];
+  direction: 'BUY' | 'SELL' | 'BOTH';
+  websocket_enabled: boolean;
 }
 
 export interface AutomationOptions {
@@ -99,7 +117,8 @@ export interface AutomationStats {
 export interface Automation {
   id: string;
   name: string;
-  telegram_provider_id: string;
+  signal_source: SignalSource;
+  telegram_provider_id?: string;
   broker_id: string;
   execution_mode: ExecutionMode;
   status: AutomationStatus;
@@ -109,6 +128,7 @@ export interface Automation {
   total_trades: number;
   error_message?: string;
   rules: AutomationRules;
+  market_strategy_rules?: MarketStrategyRules;
   options: AutomationOptions;
   stats: AutomationStats;
 }
